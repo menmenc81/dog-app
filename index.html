@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FF6B4A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="סימבה ונלה">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>סימבה ונלה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;600;700&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: friendly one-column phone app. Each dog has its own color (Simba orange, Nella violet), each place has its own color (home blue, yard green, walk pink), points are gold */
+:root{
+  --bg:#FFF6EC; --surface:#FFFFFF; --sunk:#F4ECE3; --ink:#2B2238; --muted:#6E6479; --line:#EEE2D6;
+  --brand:#FF6B4A; --brand-ink:#FFFFFF; --brand-soft:#FFE1D8;
+  --simba:#F0821E; --simba-soft:#FFE6CC; --nella:#7656F2; --nella-soft:#EAE4FF;
+  --home:#2E7CE6; --home-soft:#DCEAFF; --yard:#1E9E62; --yard-soft:#D4F3E3; --walk:#D63D8F; --walk-soft:#FCE0EF;
+  --gold:#E9A800; --gold-soft:#FFF1C2;
+  --good:#1E9E62; --good-soft:#D4F3E3; --warn:#D9342B; --warn-soft:#FDE0DD;
+  --display:"Fredoka","Rubik",system-ui,sans-serif;
+  --body:"Rubik",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --num:"Fredoka","Rubik",system-ui,sans-serif;
+  --r:20px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1A1622; --surface:#251F30; --sunk:#2F2840; --ink:#F3EEF8; --muted:#B0A6BE; --line:#3A3249;
+  --brand:#FF8466; --brand-ink:#2A120B; --brand-soft:#4A2620;
+  --simba:#FFA24D; --simba-soft:#4A2E14; --nella:#A891FF; --nella-soft:#33285A;
+  --home:#6FA8FF; --home-soft:#1C2D4A; --yard:#4FD192; --yard-soft:#173A2A; --walk:#FF7AC0; --walk-soft:#4A1C35;
+  --gold:#FFC93D; --gold-soft:#45380F;
+  --good:#4FD192; --good-soft:#173A2A; --warn:#FF8278; --warn-soft:#4A1F1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1A1622; --surface:#251F30; --sunk:#2F2840; --ink:#F3EEF8; --muted:#B0A6BE; --line:#3A3249;
+  --brand:#FF8466; --brand-ink:#2A120B; --brand-soft:#4A2620;
+  --simba:#FFA24D; --simba-soft:#4A2E14; --nella:#A891FF; --nella-soft:#33285A;
+  --home:#6FA8FF; --home-soft:#1C2D4A; --yard:#4FD192; --yard-soft:#173A2A; --walk:#FF7AC0; --walk-soft:#4A1C35;
+  --gold:#FFC93D; --gold-soft:#45380F;
+  --good:#4FD192; --good-soft:#173A2A; --warn:#FF8278; --warn-soft:#4A1F1C; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--brand)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--nella);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--brand);color:var(--brand-ink);border-radius:0 0 24px 24px}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px}
+.brand{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.1;display:flex;align-items:center;gap:8px}
+.brand .paw{font-size:24px}
+.me-chip{display:flex;align-items:center;gap:8px;border:0;background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px 5px 6px;font-size:14px;font-weight:500;max-width:55%}
+.me-chip .dot{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#2B2238;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.me-chip .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+main{padding-block:18px 112px}
+section.view{display:flex;flex-direction:column;gap:20px}
+h2{font-family:var(--display);font-weight:700;font-size:28px;line-height:1.15;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-size:19px;margin:0;font-weight:600}
+.eyebrow{font-size:13px;font-weight:600;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:10px}
+.sp{flex:1}
+
+.card{background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:0 2px 0 var(--line)}
+.banner{border-radius:16px;padding:12px 14px;background:var(--gold-soft);font-size:15px}
+.banner.warn{background:var(--warn-soft)}
+
+.dogs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dog{display:flex;gap:10px;align-items:center;border-radius:var(--r);padding:12px;min-width:0}
+.dog.simba{background:var(--simba-soft)} .dog.nella{background:var(--nella-soft)}
+.dog .info{min-width:0;display:flex;flex-direction:column;gap:2px}
+.dog .nm{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.1}
+.dog.simba .nm{color:var(--simba)} .dog.nella .nm{color:var(--nella)}
+.ava{width:54px;height:54px;border-radius:50%;object-fit:cover;flex:none;display:grid;place-items:center;font-family:var(--display);font-size:24px;font-weight:700;color:#fff;border:3px solid var(--surface)}
+.ava.simba{background:var(--simba)} .ava.nella{background:var(--nella)}
+img.ava.simba{border-color:var(--simba)} img.ava.nella{border-color:var(--nella)}
+.ava.sm{width:42px;height:42px;font-size:19px;border-width:2px}
+.ava.lg{width:88px;height:88px;font-size:40px;border-width:4px}
+
+.cue{font-family:var(--display);font-weight:600;font-size:16px;line-height:1;background:var(--ink);color:var(--bg);border-radius:999px;padding:6px 11px;white-space:nowrap}
+.cue::before{content:"«"} .cue::after{content:"»"}
+.pill{font-size:13px;font-weight:500;border-radius:999px;padding:3px 10px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.adult{background:var(--warn-soft);color:var(--warn)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.tan{background:var(--gold-soft);color:var(--ink)}
+.pill.w-home{background:var(--home-soft);color:var(--home)}
+.pill.w-yard{background:var(--yard-soft);color:var(--yard)}
+.pill.w-walk{background:var(--walk-soft);color:var(--walk)}
+.pill.d-simba{background:var(--simba-soft);color:var(--simba)}
+.pill.d-nella{background:var(--nella-soft);color:var(--nella)}
+
+.group-h{display:flex;align-items:center;gap:8px;margin-bottom:-2px}
+.group-h .ini{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;font-size:15px;flex:none}
+.task{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:var(--r);padding:12px;box-shadow:0 2px 0 var(--line)}
+.task .body{flex:1;min-width:0}
+.task .ttl{font-weight:600;font-size:16px}
+.stars{font-family:var(--num);letter-spacing:1px;color:var(--gold);font-size:18px}
+
+details.task{display:block;padding:0}
+details.task > summary{list-style:none;cursor:pointer;display:flex;gap:12px;align-items:center;padding:12px}
+details.task > summary::-webkit-details-marker{display:none}
+details.task[open].simba{background:var(--simba-soft)} details.task[open].nella{background:var(--nella-soft)}
+details.task.done{background:var(--good-soft)}
+details.task .in{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.howto{font-size:13px;color:var(--muted);white-space:nowrap}
+details[open] .howto{display:none}
+.donebadge{display:flex;align-items:center;gap:6px;color:var(--good);font-weight:600;font-size:14px}
+
+.btn{border:0;border-radius:14px;padding:11px 16px;font-weight:600;background:var(--sunk);color:var(--ink)}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.good{background:var(--good);color:var(--surface)}
+.btn.ghost{background:var(--surface);box-shadow:inset 0 0 0 2px var(--line)}
+.btn.danger{background:var(--warn-soft);color:var(--warn)}
+.btn.small{padding:7px 12px;font-size:14px;border-radius:12px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.iconbtn{border:0;background:transparent;color:var(--muted);padding:6px;border-radius:8px;font-size:14px}
+
+.seg{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.seg button{border:0;background:var(--surface);border-radius:999px;padding:8px 14px;font-size:15px;white-space:nowrap;box-shadow:inset 0 0 0 2px var(--line)}
+.seg button[aria-pressed="true"]{background:var(--nella);color:#fff;box-shadow:none}
+
+details.ex{background:var(--surface);border-radius:var(--r);box-shadow:0 2px 0 var(--line)}
+details.ex summary{list-style:none;cursor:pointer;padding:14px;display:flex;gap:10px;align-items:center}
+details.ex summary::-webkit-details-marker{display:none}
+details.ex summary .t{flex:1;min-width:0;font-weight:600}
+details.ex .in{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+details.ex[open] summary .chev{transform:rotate(-90deg)}
+.chev{color:var(--muted);transition:transform .15s;font-size:20px;line-height:1}
+ol.steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:st}
+ol.steps li{counter-increment:st;display:flex;gap:10px;align-items:flex-start}
+ol.steps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-weight:700;font-size:14px;margin-top:1px}
+.why{margin:0;font-size:15px}
+.done-when{background:var(--good-soft);border-radius:14px;padding:10px 12px;font-size:15px}
+.careful{background:var(--warn-soft);border-radius:14px;padding:10px 12px;font-size:15px}
+
+table.dict{width:100%;border-collapse:collapse;font-size:16px}
+table.dict td{padding:10px 4px;border-bottom:2px dashed var(--line)}
+table.dict td:last-child{text-align:left}
+
+.stage-track{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.stage-track div{height:10px;border-radius:5px;background:var(--sunk)}
+.stage-track.simba div.on{background:var(--simba)} .stage-track.nella div.on{background:var(--nella)}
+.check{display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;align-items:center;font-size:15px}
+.check .h{font-size:13px;color:var(--muted);font-weight:600}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums}
+.bars{display:grid;grid-template-columns:repeat(14,1fr);gap:3px;align-items:end;height:48px}
+.bars div{border-radius:4px 4px 2px 2px;min-height:2px}
+.bars.simba div{background:var(--simba)} .bars.nella div{background:var(--nella)}
+.bars div.zero{background:var(--line)}
+
+.goal-bar{height:18px;border-radius:9px;background:var(--sunk);overflow:hidden}
+.goal-bar div{height:100%;background:repeating-linear-gradient(-45deg,var(--gold) 0 12px,color-mix(in srgb,var(--gold) 80%,#fff) 12px 24px);border-radius:9px;transition:width .4s}
+.big{font-family:var(--display);font-weight:700;font-size:44px;line-height:1}
+.people{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.person{border-radius:var(--r);padding:14px;min-width:0}
+.person .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+nav.tabs{position:fixed;inset:auto 0 0;z-index:6;background:var(--surface);box-shadow:0 -2px 0 var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(6,1fr);padding-block:6px}
+nav.tabs button{border:0;background:transparent;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--muted);border-radius:14px}
+nav.tabs button .ic{width:40px;height:30px;border-radius:999px;display:grid;place-items:center}
+nav.tabs button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-current="page"]{color:var(--ink);font-weight:600}
+nav.tabs button[data-tab="today"][aria-current="page"] .ic{background:var(--brand-soft);color:var(--brand)}
+nav.tabs button[data-tab="walks"][aria-current="page"] .ic{background:var(--walk-soft);color:var(--walk)}
+nav.tabs button[data-tab="tasks"][aria-current="page"] .ic{background:var(--home-soft);color:var(--home)}
+nav.tabs button[data-tab="library"][aria-current="page"] .ic{background:var(--yard-soft);color:var(--yard)}
+nav.tabs button[data-tab="progress"][aria-current="page"] .ic{background:var(--nella-soft);color:var(--nella)}
+nav.tabs button[data-tab="points"][aria-current="page"] .ic{background:var(--gold-soft);color:var(--gold)}
+
+.scrim{position:fixed;inset:0;z-index:20;background:rgba(20,12,30,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:560px;max-height:88vh;overflow-y:auto;border-radius:26px 26px 0 0;padding:20px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+.sheet h2{font-size:26px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--muted)}
+label.f > input,label.f > select,label.f > textarea{font-size:16px;font-weight:400;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:11px;width:100%}
+.rate{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rate button{border:0;box-shadow:inset 0 0 0 2px var(--line);background:var(--bg);border-radius:16px;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:14px}
+.rate button span.f{font-size:26px;line-height:1.1}
+.rate button[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--gold);background:var(--gold-soft)}
+.daypick{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.daypick button{border:0;box-shadow:inset 0 0 0 2px var(--line);background:var(--bg);border-radius:12px;padding:9px 0;font-weight:600}
+.daypick button[aria-pressed="true"]{background:var(--home);color:#fff;box-shadow:none}
+.choice{display:flex;flex-direction:column;gap:6px}
+.choice button{display:flex;align-items:center;gap:10px;border:0;box-shadow:inset 0 0 0 2px var(--line);background:var(--bg);border-radius:16px;padding:10px;text-align:start}
+.choice button[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--brand);background:var(--brand-soft)}
+
+.toast{position:fixed;inset:auto 16px calc(90px + env(safe-area-inset-bottom,0px));z-index:30;margin:0 auto;max-width:420px;background:var(--ink);color:var(--bg);border-radius:16px;padding:12px 16px;font-size:15px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.empty{text-align:center;padding:22px 16px;color:var(--muted);border:2px dashed var(--line);border-radius:var(--r);display:flex;flex-direction:column;gap:10px;align-items:center}
+.empty .big-ic{font-size:36px;line-height:1}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+ul.rules li{background:var(--warn-soft);border-radius:14px;padding:10px 12px}
+details.sug{background:var(--surface);border-radius:var(--r);padding:14px;box-shadow:0 2px 0 var(--line)}
+details.sug summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px}
+details.sug summary::-webkit-details-marker{display:none}
+details.sug[open] summary .chev{transform:rotate(-90deg)}
+.journal td{padding:6px 2px}
+.journal tr.sat td{border-bottom:2px solid var(--line)}
+.statrow b{font-size:20px}
+.cellin{display:inline-flex;align-items:center;gap:3px}
+.potty{font-size:12px;min-width:30px;text-align:start}
+.ini.mini{width:20px;height:20px;font-size:11px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-weight:700}
+.slot .pchip:disabled{cursor:default;opacity:1}
+.slot .pchip:disabled:not([aria-pressed="true"]){opacity:.55}
+.slot{background:var(--surface);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 0 var(--line)}
+.slot.done{background:var(--walk-soft)}
+.dogline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dogline .pchip[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--walk);background:var(--surface)}
+.datelabel{position:relative;text-align:center;font-size:17px;background:var(--surface);border-radius:14px;padding:8px;box-shadow:inset 0 0 0 2px var(--line)}
+.datelabel input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.walklink{border:0;display:flex;align-items:center;gap:8px;background:var(--walk-soft);color:var(--ink);border-radius:16px;padding:12px 14px;font-weight:500;text-align:start}
+.walkrow .ini,.matrix .ini{width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-weight:700;font-size:14px;flex:none}
+.tablewrap{overflow-x:auto;margin-inline:-4px}
+table.matrix{width:100%;border-collapse:collapse;font-size:14px;text-align:center}
+table.matrix th{font-weight:500;padding:4px 4px 8px;vertical-align:bottom}
+table.matrix th:first-child,table.matrix td:first-child{text-align:start;white-space:nowrap}
+table.matrix td{padding:7px 4px;border-top:1px solid var(--line)}
+table.matrix tbody tr{cursor:pointer}
+table.matrix tr.sel td{background:var(--walk-soft)}
+table.matrix tfoot td{border-top:2px solid var(--line)}
+.cnt{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:13px;font-weight:700;padding:0 6px}
+.datenav{display:flex;align-items:center;gap:8px}
+.datenav input{width:100%;font-size:16px;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:8px 10px;color:var(--ink)}
+.walkdog{background:var(--surface);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dots{display:flex;gap:6px;align-items:center}
+.dots span:not(.small){width:16px;height:16px;border-radius:50%;background:var(--line)}
+.dots span.on.simba{background:var(--simba)} .dots span.on.nella{background:var(--nella)}
+.walkrow{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:12px;padding:8px 10px;font-size:14px}
+.walkrow .sp{min-width:0}
+.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.statrow div{background:var(--walk-soft);border-radius:14px;padding:8px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.statrow b{font-size:22px;color:var(--walk)}
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gallery img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:16px;max-width:100%}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.pchip{border:0;box-shadow:inset 0 0 0 2px var(--line);background:var(--bg);border-radius:999px;padding:5px 12px 5px 6px;display:flex;align-items:center;gap:6px;font-weight:500}
+.pchip:not(:has(.ini)){padding:7px 14px}
+.pchip .ini{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+.pchip[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--pc,var(--home));background:var(--ps,var(--home-soft))}
+.dogpick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dogpick button{border:0;box-shadow:inset 0 0 0 2px var(--line);background:var(--bg);border-radius:16px;padding:10px;display:flex;gap:10px;align-items:center;text-align:start}
+.dogpick button.simba[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--simba);background:var(--simba-soft)}
+.dogpick button.nella[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--nella);background:var(--nella-soft)}
+.tierbar{position:relative;height:18px;border-radius:9px;background:var(--surface);margin:8px 14px 10px}
+.tierbar .fill{height:100%;border-radius:9px;background:var(--yard);transition:width .4s}
+.tierbar .mark{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-size:16px;box-shadow:0 0 0 2px var(--line);filter:grayscale(1);opacity:.7}
+.tierbar .mark.on{filter:none;opacity:1;box-shadow:0 0 0 3px var(--yard)}
+.tier{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:16px;padding:10px 12px}
+.tier .medal{font-size:26px;line-height:1}
+.tier:not(.reached) .medal{filter:grayscale(.6)}
+.minibar{height:8px;border-radius:4px;background:var(--surface);overflow:hidden;margin-top:6px}
+.minibar div{height:100%;border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+.gate{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.gate .box{width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px;text-align:center}
+.gate .logo{font-size:56px;line-height:1}
+.gate input{font-size:18px;text-align:center;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px;width:100%;color:var(--ink)}
+.gate .err{color:var(--warn);font-size:15px;min-height:1.2em}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate" hidden><div class="box" id="gateBox"></div></div>
+<div>
+<header class="top"><div class="wrap">
+  <div class="brand"><span class="paw" aria-hidden="true">🐾</span>סימבה ונלה</div>
+  <button class="me-chip" id="meChip" data-action="pickMe" type="button"><span class="dot" id="meDot">?</span><span class="nm" id="meName">מי מתרגל?</span></button>
+</div></header>
+
+<main class="wrap" id="main">
+  <section class="view" data-view="today"></section>
+  <section class="view" data-view="walks" hidden></section>
+  <section class="view" data-view="tasks" hidden></section>
+  <section class="view" data-view="library" hidden></section>
+  <section class="view" data-view="progress" hidden></section>
+  <section class="view" data-view="points" hidden></section>
+</main>
+
+<nav class="tabs" aria-label="ניווט"><div class="wrap">
+  <button type="button" data-tab="today"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4"/></svg></span>היום</button>
+  <button type="button" data-tab="walks"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M9 21l2-6 3 3v3M7 12l3-4 4 1 2 4 3 1M10 8l-1 5"/></svg></span>הורדות</button>
+  <button type="button" data-tab="tasks"><span class="ic"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg></span>משימות</button>
+  <button type="button" data-tab="library"><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M5 16a4 4 0 0 1 4-4h10"/></svg></span>תרגילים</button>
+  <button type="button" data-tab="progress"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>התקדמות</button>
+  <button type="button" data-tab="points"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></span>נקודות</button>
+</div></nav>
+
+<div class="scrim" id="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" hidden></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+</body>
+</html>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script>
+/* ---------- תוכן האילוף ---------- */
+const STAGES = {1:"יסודות", 2:"כישורי טיול", 3:"עבודה מול כלבים"};
+const CORE = {1:["look","touch","mat","door","yardRecall"], 2:["uturnHome","looseYard","uturnWalk","looseWalk"], 3:["distance","engage"]};
+const DOGS = [{id:"simba", name:"סימבה"}, {id:"nella", name:"נלה"}];
+const DAYS = ["א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ש׳"];
+const DAY_FULL = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+const PTS = 10;
+const RATES = {1:"קשה", 2:"בסדר", 3:"מצוין"};
+
+const EX = [
+ {id:"look", stage:1, title:"קשר עין", cue:"תסתכל", where:"בית", min:3,
+  why:"הבסיס לכל השאר. כלב שמסתכל עליך לא מסתער על כלב אחר.",
+  steps:["בחדר שקט, עם גרגיר ביד. חכו בשקט.","ברגע שהכלב מסתכל לכם בעיניים: «יס!» ומיד גרגיר.","אחרי 10 הצלחות, אמרו «תסתכל» רגע לפני שהוא מסתכל.","הקשו בהדרגה: חדר אחר, הגינה, כשמישהו עובר בבית."],
+  done:"מגיב ל«תסתכל» ב-8 מתוך 10 פעמים, גם בגינה."},
+ {id:"touch", stage:1, title:"נגיעה ביד", cue:"נוגע", where:"בית", min:3,
+  why:"מזיז את הכלב בלי למשוך ברצועה, ומפנה אותו מגירוי.",
+  steps:["הושיטו כף יד פתוחה ליד האף, בגובה הראש.","כשהוא נוגע באף: «יס!» וגרגיר מהיד השנייה.","אחרי כמה הצלחות, אמרו «נוגע» כשאתם מושיטים.","הזיזו את היד לצדדים ולמטה, ואז צעד-שניים אחורה כדי שילך אחריה."],
+  done:"עוקב אחרי היד 3 צעדים, בבית ובגינה."},
+ {id:"mat", stage:1, title:"שכיבה על מזרן", cue:"מקום", where:"בית", min:4,
+  why:"מלמד את הגוף להירגע. משמש גם כשמגיעים אורחים.",
+  steps:["הניחו שמיכה מקופלת. כל צעד עליה: «יס!» וגרגיר על השמיכה.","חכו שישכב עליה. שכיבה: גרגיר על השמיכה.","כשהוא כבר הולך אליה בעצמו, הוסיפו «מקום».","בנו משך: גרגיר כל כמה שניות, ואז כל חצי דקה. «חופשי» מסיים.","תרגלו בזמן ארוחת ערב או כשהבית עמוס."],
+  done:"שוכב 2 דקות על המזרן בזמן שאנשים זזים בבית."},
+ {id:"door", stage:1, title:"יציאה רגועה", cue:"חכה", where:"בית", min:4,
+  why:"ההתרגשות מתחילה לפני הטיול. כלב שיוצא רגוע מגיב פחות בחוץ.",
+  steps:["הרימו את הרצועה. קופץ? הניחו אותה וחכו בשקט.","כשארבע רגליים על הרצפה, חברו את הרצועה.","יד על הידית, «חכה», פתחו סדק. זז קדימה? סגרו.","נשאר יושב והדלת פתוחה: «חופשי» ויוצאים.","כל כלב בנפרד."],
+  kid:"בנות מתרגלות רק עד פתיחת הדלת, בלי לצאת.",
+  done:"יושב ליד דלת פתוחה 5 שניות, ב-4 מתוך 5 יציאות."},
+ {id:"meal", stage:1, title:"חכה לפני ארוחה", cue:"חכה", where:"בית", min:2,
+  why:"שליטה עצמית פעמיים ביום, בלי זמן נוסף.",
+  steps:["«שב», ואז הורידו את הקערה לאט.","קם? הקערה עולה בחזרה.","הקערה על הרצפה והוא עדיין יושב: «חופשי».","הגדילו בהדרגה ל-5 שניות."],
+  done:"מחכה 5 שניות כשהקערה על הרצפה."},
+ {id:"yardRecall", stage:1, title:"קריאה מהגינה", cue:"אליי", where:"גינה", min:3,
+  why:"הכלי המרכזי נגד נביחות בגינה. מתרגלים כשאין שום גירוי.",
+  steps:["הכלב בגינה ושקט. קראו «אליי» פעם אחת מהדלת.","רוצו צעד-שניים אחורה, כדי שירצה לבוא.","הגיע: 3–5 גרגירים בבת אחת ליד הדלת.","לפעמים שחררו אותו חזרה לגינה, כדי ש«אליי» לא יסמן סוף של כיף.","5 פעמים ביום, בזמנים שונים."],
+  done:"בא מיד ב-9 מתוך 10 קריאות, כשאין גירוי."},
+ {id:"yardQuiet", stage:1, title:"שקט מול הוואדי", cue:null, where:"גינה", min:5,
+  why:"מתגמלים את השקט לפני שהנביחה מגיעה.",
+  steps:["היו בגינה עם הכלבים, עם כיס גרגירים.","מסתכל לכיוון הוואדי ולא נובח: «יס!» וזרקו גרגיר לרגליים שלכם.","נביחה או שתיים זה בסדר. אחר כך «אליי», גרגיר בדלת, ודקה בפנים.","לא צועקים. בשביל הכלב, צעקה היא הצטרפות לנביחה."],
+  done:"רוב הזמן בגינה עובר בלי רצף נביחות."},
+ {id:"sniff", stage:1, title:"טיול הרחה", cue:null, where:"טיול", min:15, adult:true,
+  why:"הרחה מורידה עוררות. טיול רגוע במקום שקט שווה יותר מריצה.",
+  steps:["כלב אחד, מבוגר אחד, במקום ובשעה השקטים.","רצועה רגילה וארוכה, לא נגללת. הכלב קובע את הקצב.","פזרו חופן גרגירים על הדשא ותנו לו לחפש.","מופיע כלב או חתול? «הופה» והולכים לכיוון ההפוך, לפני שהוא מגיב."],
+  done:"חוזר הביתה רגוע יותר משיצא."},
+ {id:"potty", stage:1, title:"צרכים רק בחוץ", cue:"פיפי", where:"טיול", min:10, adult:true,
+  why:"המטרה: בלי צרכים בגינה. כלב צריך להיות רגוע כדי לעשות צרכים בטיול.",
+  steps:["בבוקר יוצאים ישר למקום קבוע ומחכים בסבלנות.","כשהוא מתחיל, אמרו בשקט «פיפי». כשמסיים: «יס!» ו-3 גרגירים.","ממשיכים לטייל אחרי הצרכים, כדי שזה לא יסמן סוף טיול.","בגינה: מתחיל? קוטעים בשקט ויוצאים לרחוב. אף פעם לא מענישים.","שוטפים מקומות קודמים בגינה בתכשיר אנזימטי שמעלים ריח."],
+  done:"שבוע שלם בלי צרכים בגינה."},
+ {id:"uturnHome", stage:2, title:"פנייה בחירום, בגינה", cue:"הופה", where:"גינה", min:3,
+  why:"הדרך המהירה ביותר לצאת ממצב מסוכן. חייבת לעבוד בלי מחשבה.",
+  steps:["הכלב ברצועה בגינה. אמרו «הופה» בקול שמח.","הסתובבו לכיוון ההפוך ולכו מהר.","מסתובב אחריכם: «יס!» וגרגיר ליד הרגל.","10 פעמים באימון, בנקודות שונות בגינה."],
+  done:"מסתובב מיד במילה, 9 מתוך 10."},
+ {id:"looseYard", stage:2, title:"רצועה רפויה, בגינה", cue:null, where:"גינה", min:5,
+  why:"לומדים את הכלל במקום בלי הסחות.",
+  steps:["הולכים בגינה. כל כמה צעדים ברצועה רפויה: גרגיר ליד הרגל.","הרצועה נמתחת? נעצרים כמו עץ.","הרצועה חוזרת להיות רפויה? ממשיכים.","מאריכים בהדרגה את המרחק בין גרגירים."],
+  done:"20 צעדים ברצועה רפויה."},
+ {id:"uturnWalk", stage:2, title:"פנייה בחירום, בטיול", cue:"הופה", where:"טיול", min:10, adult:true,
+  why:"מתרגלים בזמן רגוע, כדי שזה יעבוד כשבאמת צריך.",
+  steps:["בטיול במקום השקט: 5 פעמים בזמנים אקראיים, «הופה» ופנייה.","מסתובב: גרגיר ליד הרגל.","כלב מופיע רחוק? משתמשים בזה לפני שהכלב מגיב."],
+  done:"מסתובב מיד, גם כשיש ריח מעניין."},
+ {id:"looseWalk", stage:2, title:"רצועה רפויה, ברחוב", cue:null, where:"טיול", min:10, adult:true,
+  why:"אותו כלל מהגינה, עכשיו בחוץ.",
+  steps:["מתחילים במקום השקט, עם גרגיר כל 3–4 צעדים.","רצועה נמתחת: עוצרים. רפויה: ממשיכים.","מושך כל הזמן? כנראה נרגש מדי. חוזרים לטיול הרחה.","לסימבה: רתמה עם חיבור בחזה מקלה מאוד."],
+  done:"חצי מהטיול ברצועה רפויה."},
+ {id:"distance", stage:3, title:"רואה כלב, מקבל אוכל", cue:null, where:"טיול", min:10, adult:true,
+  why:"משנים את הרגש: כלב אחר מבשר על אוכל, לא על סכנה.",
+  steps:["כלב אחד, מבוגר אחד, במקום שבו רואים כלבים מרחוק.","מוצאים מרחק שבו הכלב רואה כלב ועוד לא מגיב: לא נדרך, לא נובח.","מסתכל על הכלב השני: «יס!» וגרגיר. כל מבט, גרגיר.","נדרך, מתקבע או נובח? קרוב מדי. «הופה» ומתרחקים.","3–5 דקות ונגמר, עדיף על הצלחה. אותו דבר עם חתולים."],
+  careful:"מקטינים מרחק רק אחרי 3 טיולים רצופים בלי תגובה, וכמה מטרים בכל פעם.",
+  done:"רואה כלב במרחק בינוני ומסתכל אליכם בעצמו."},
+ {id:"engage", stage:3, title:"מבט חזרה אליך", cue:"תסתכל", where:"טיול", min:10, adult:true,
+  why:"השלב הבא של עבודת המרחק: הכלב בוחר בכם במקום בכלב.",
+  steps:["באותה עבודת מרחק, חכו שאחרי מבט על הכלב הוא יסתכל אליכם בעצמו.","על מבט כזה: 3 גרגירים בבת אחת.","רק אם הוא לא מסתכל: «תסתכל»."],
+  done:"מסתכל אליכם בעצמו ברוב הפעמים שהוא רואה כלב."},
+ {id:"muzzle", stage:3, title:"הרגלה לזמם (רשות)", cue:null, where:"בית", min:3, adult:true,
+  why:"כלי בטיחות, לא עונש. כלב שאוהב את הזמם רגוע יותר, וגם מי שמחזיק אותו.",
+  steps:["זמם סל, שאפשר לשתות ולקבל דרכו אוכל.","ימים ראשונים: מראים זמם, גרגיר, מסתירים.","שמים גרגיר בתחתית. הכלב מכניס את האף בעצמו.","מאריכים בהדרגה את הזמן שהאף בפנים.","רק כשהוא מכניס בשמחה: סוגרים רצועה לשנייה, וגרגיר."],
+  done:"לובש זמם 10 דקות בנחת."},
+ {id:"handling", stage:"n", dogs:["nella"], title:"מגע ברגליים", cue:null, where:"בית", min:3, adult:true,
+  why:"בונה אמון במגע, בקצב שלה.",
+  steps:["כשהיא רגועה ושוכבת: נגיעה בכתף, שנייה אחת. «יס!» וגרגיר.","זזה או מתרחקת? עוצרים להיום, בלי לרדוף אחריה.","בהדרגה ובמשך שבועות: מרפק, אמה, שורש כף, כף.","אף פעם לא מחזיקים אותה בכוח."],
+  careful:"רק מבוגרים מתרגלים את זה.",
+  done:"נותנת לגעת בכף 3 שניות בלי להתרחק."},
+ {id:"alone", stage:"n", dogs:["nella"], title:"עצמאות מסימבה", cue:null, where:"בית", min:10,
+  why:"היא תלויה בו מאוד. לומדים בהדרגה שזה בסדר להיות בלעדיו.",
+  steps:["סימבה יוצא לטיול עם מבוגר.","נלה נשארת עם מישהו מהבית, עם משחק הרחה או גרגירים מפוזרים.","מתחילים בפרידה של 2 דקות ומאריכים בהדרגה.","בוכה או שורטת את הדלת חזק? הפרידה הבאה קצרה יותר."],
+  done:"רגועה 15 דקות בלי סימבה."},
+ {id:"strangers", stage:"n", dogs:["nella"], title:"אורח זורק גרגיר", cue:null, where:"בית", min:5, adult:true,
+  why:"היא מחליטה אם להתקרב. זה מה שבונה ביטחון.",
+  steps:["האורח לא מסתכל עליה, לא מושיט יד ולא מדבר אליה.","הוא זורק גרגיר רחוק ממנו, כך שתוכל לקחת ולהתרחק.","מתקרבת? הוא זורק עוד גרגיר מאחוריה.","בלי ליטוף בשלב הזה, גם אם היא מתקרבת."],
+  done:"נכנסת לחדר עם אורח ונשארת רגועה."},
+ {id:"play", stage:"n", dogs:["nella"], title:"משחק עם חוקים", cue:"עזוב", where:"בית", min:5, adult:true,
+  why:"היא לא למדה לשחק כגורה. משחק משיכה עם חוקים מלמד גבולות.",
+  steps:["צעצוע משיכה ארוך, כדי שהידיים רחוקות מהפה.","משחקים 10–20 שניות, ואז «עזוב» וגרגיר ליד האף.","עוזבת: «יס!», גרגיר, וממשיכים לשחק.","שיניים נוגעות בעור? «אופס», והמשחק נעצר ל-10 שניות."],
+  done:"עוזבת ב«עזוב» ומשחקת בלי נביחות."},
+ {id:"knock", stage:"n", dogs:["nella"], title:"דפיקה בדלת = גרגיר", cue:null, where:"בית", min:3,
+  why:"הנביחה מתחילה כבר מהצליל. מלמדים שדפיקה או צלצול מבשרים על אוכל, לא על סכנה.",
+  steps:["מישהו בבית דופק בשקט על דלת פנימית או על השולחן. מיד גרגיר לנלה, גם אם נבחה.","10 פעמים, עם הפסקות. בהדרגה דופקים חזק יותר.","כשהיא כבר מסתכלת אליכם בציפייה אחרי הדפיקה, עוברים לדלת הכניסה מבפנים.","אחר כך מישהו מבחוץ דופק או מצלצל, ואתם בפנים עם הגרגירים.","מחזירים צעד אחורה בכל פעם שהיא נובחת יותר מנביחה אחת."],
+  done:"דפיקה בדלת הכניסה גורמת לה להסתכל עליכם במקום לנבוח."},
+ {id:"doormat", stage:"n", dogs:["nella"], title:"מקום כשמישהו נכנס", cue:"מקום", where:"בית", min:5,
+  why:"במקום להחליט מה לעשות ליד הדלת, יש לה משימה ברורה, רחוק מהדלת.",
+  steps:["שמים את המזרן כמה מטרים מהדלת, במקום שרואים ממנו את הכניסה.","מתחילים רק אחרי שהיא כבר יודעת «מקום» בבית.","בן משפחה פותח וסוגר את הדלת בלי לצאת. נלה על המזרן: גרגיר כל כמה שניות.","אחר כך הוא יוצא ונכנס, בשקט, בלי לדבר אליה.","קמה ורצה לדלת? בלי לכעוס, מחזירים אותה בשקט למזרן ומקלים: הדלת נפתחת פחות."],
+  done:"נשארת על המזרן כשבן משפחה נכנס."},
+ {id:"entry", stage:"n", dogs:["nella"], title:"כניסה שקטה הביתה", cue:null, where:"בית", min:2,
+  why:"לכל מי שנכנס הביתה, גם בני משפחה. ברכה רגועה מלמדת שהכניסה היא לא אירוע מרגש או מפחיד.",
+  steps:["מחזיקים כמה גרגירים בכיס כשנכנסים הביתה.","נכנסים בלי להגיד שלום לנלה, בלי להסתכל עליה ובלי להתכופף.","מפזרים 5–6 גרגירים על הרצפה, רחוק מהדלת. הרחה מורידה מתח.","רק כשהיא שקטה ועומדת על ארבע רגליים: שלום רגוע, בגובה שלה, ליטוף קצר בחזה.","שוב נובחת או קופצת? מתעלמים כמה שניות ומנסים שוב.","כל בני הבית נכנסים כך, כל פעם."],
+  careful:"אם הנביחה היא מפחד (נסוגה, זנב למטה, אוזניים אחורה): לא מתקרבים אליה ולא רוכנים מעליה. היא זו שמחליטה מתי להתקרב.",
+  done:"כשבן משפחה נכנס, היא נובחת פעם אחת לכל היותר ונרגעת תוך דקה."}
+];
+const EXM = Object.fromEntries(EX.map(e=>[e.id,e]));
+const DICT = [["ישיבה","שב"],["שכיבה","ארצה"],["בוא אליי","אליי"],["הישאר במקום","חכה"],["מבט אליי","תסתכל"],["לגעת באף ביד","נוגע"],["ללכת למזרן","מקום"],["לעזוב משהו","עזוב"],["פנייה בחירום","הופה"],["סיום תרגיל","חופשי"],["עשית נכון, אוכל מגיע","יס!"],["צרכים בטיול","פיפי"]];
+const RULES = ["רק מבוגרים נוגעים לנלה ברגליים.","כלב נרגש מדי לא לומד. עוצרים ומנסים אחר כך.","מסיימים כל אימון בהצלחה.","הגרגירים לאימון באים מהמנה היומית.","כלב נפגע, או שמשהו מחמיר? פונים למאלף או ליועץ התנהגות."];
+
+/* ---------- מצב ---------- */
+const S = {tab:"today", walks:[], photos:{}, family:[], dogs:{}, tasks:[], logs:[], rewards:[], redemptions:[], settings:null,
+  db:null, assets:null, user:null, isOwner:false, canWrite:null, loaded:false, slow:false, noDb:false, libFilter:1};
+const store = {get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+S.me = store.get("meId");
+S.walkDate = null;
+S.open = new Set();
+
+/* ---------- עזרים ---------- */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const dkey = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = () => dkey(new Date());
+const DAY = 864e5;
+const stars = n => "★".repeat(n) + "☆".repeat(3-n);
+const member = id => S.family.find(f=>f.id===id);
+const mName = id => member(id)?.name || "מישהו";
+const dogName = id => DOGS.find(d=>d.id===id)?.name || id;
+const dogStage = id => S.dogs[id]?.stage || 1;
+const activeFamily = () => S.family.filter(f=>f.active!==false).sort((a,b)=>(a.kind===b.kind?0:a.kind==="adult"?-1:1) || (a.order||0)-(b.order||0));
+const exFor = (dog, kind) => EX.filter(e => {
+  if (e.dogs && !e.dogs.includes(dog)) return false;
+  if (e.stage==="n") { if (dog!=="nella") return false; }
+  else if (e.stage > dogStage(dog)) return false;
+  if (kind==="kid" && e.adult) return false;
+  return true;
+});
+function avatar(dogId, cls=""){
+  const p = S.dogs[dogId]?.photo;
+  const src = p && S.photos[p]?.data;
+  return src ? `<img class="ava ${dogId} ${cls}" src="${esc(src)}" alt="${esc(dogName(dogId))}">`
+           : `<span class="ava ${dogId} ${cls}" aria-hidden="true">${esc(dogName(dogId)[0])}</span>`;
+}
+const WHERE = {"בית":["home","🏠"],"גינה":["yard","🌳"],"טיול":["walk","🐾"]};
+const wherePill = e => `<span class="pill w-${WHERE[e.where][0]}">${WHERE[e.where][1]} ${e.where}</span>`;
+const PCOL = ["var(--brand)","var(--nella)","var(--home)","var(--yard)","var(--walk)","var(--simba)"];
+const PSOFT = ["var(--brand-soft)","var(--nella-soft)","var(--home-soft)","var(--yard-soft)","var(--walk-soft)","var(--simba-soft)"];
+const pIdx = id => Math.max(0, activeFamily().findIndex(f=>f.id===id)) % PCOL.length;
+function exBody(e){
+  return `<div class="row">${wherePill(e)}<span class="pill">⏱ ${e.min} דק׳</span>${e.adult?`<span class="pill adult">מבוגרים בלבד</span>`:""}${(CORE[e.stage]||[]).includes(e.id)?`<span class="pill tan">⭐ תנאי למעבר שלב</span>`:""}</div><p class="why">${esc(e.why)}</p><ol class="steps">${e.steps.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ol>${e.kid?`<div class="careful">${esc(e.kid)}</div>`:""}${e.careful?`<div class="careful">${esc(e.careful)}</div>`:""}<div class="done-when"><b>✅ מוכן כש:</b> ${esc(e.done)}</div>`;
+}
+function taskCard({key, dog, e, sub, log, action}){
+  const open = S.open.has(key);
+  return `<details class="task ${dog} ${log?"done":""}" data-key="${esc(key)}" ${open?"open":""}><summary>${avatar(dog,"sm")}<div class="body"><div class="ttl">${esc(e.title)}</div><div class="small muted">${sub}</div></div>${e.cue?`<span class="cue">${esc(e.cue)}</span>`:""}${log?`<span class="stars" title="${RATES[log.rating]}">${stars(log.rating)}</span>`:`<span class="howto">איך עושים? ‹</span>`}</summary><div class="in">${exBody(e)}${log?`<div class="donebadge">✔ בוצע היום · ${RATES[log.rating]}</div>`:action}</div></details>`;
+}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2800)}
+async function write(fn, okMsg){
+  if (!S.db) { toast("אין חיבור לנתונים. בדקו את האינטרנט ונסו שוב."); return false; }
+  try { await fn(); if (okMsg) toast(okMsg); return true; }
+  catch(e){
+    const code = e && e.code;
+    if (code==="permission-denied") toast("לא נשמר: אין הרשאה. בדקו את הקוד המשפחתי.");
+    else if (code==="resource-exhausted") toast("לא נשמר: הגעתם למגבלה היומית של האחסון החינמי. נסו מחר.");
+    else toast("לא נשמר. בדקו את החיבור ונסו שוב.");
+    return false;
+  }
+}
+
+/* ---------- חישובים ---------- */
+function exStats(dog, exId){
+  const L = S.logs.filter(l=>l.dog===dog && l.exId===exId).sort((a,b)=>b.ts-a.ts);
+  const last5 = L.slice(0,5);
+  const avg = last5.length ? last5.reduce((s,l)=>s+(l.rating||0),0)/last5.length : 0;
+  return {count:L.length, last:L[0], avg, ready: last5.length>=5 && avg>=2.5};
+}
+function readiness(dog){
+  const st = dogStage(dog);
+  const core = (CORE[st] || []).filter(id=>!EXM[id].dogs || EXM[id].dogs.includes(dog));
+  const rows = core.map(id=>({ex:EXM[id], ...exStats(dog,id)}));
+  return {stage:st, rows, ready: rows.length>0 && rows.every(r=>r.ready)};
+}
+function pointsOf(mid){
+  const earned = S.logs.filter(l=>l.member===mid).reduce((s,l)=>s+(l.pts||0),0);
+  const spent = S.redemptions.filter(r=>r.member===mid).reduce((s,r)=>s+(r.cost||0),0);
+  const week = S.logs.filter(l=>l.member===mid && l.ts > Date.now()-7*DAY).reduce((s,l)=>s+(l.pts||0),0);
+  return {earned, spent, balance: earned-spent, week};
+}
+function goal(){
+  const g = S.settings || {};
+  const start = g.goalStart || 0;
+  const total = S.logs.filter(l=>l.ts>=start).reduce((s,l)=>s+(l.pts||0),0);
+  let tiers = Array.isArray(g.familyTiers) ? g.familyTiers.filter(t=>t && t.target>0) : [];
+  if (!tiers.length && g.goalTarget) tiers = [{title:g.goalTitle||"יעד משפחתי", target:g.goalTarget}];
+  tiers = tiers.slice().sort((a,b)=>a.target-b.target);
+  return {tiers, total, start, claimed: g.tiersClaimed || [], history: g.goalsDone || []};
+}
+const MEDAL = ["🥉","🥈","🥇","🏆","🏆"];
+function personalTiers(){ return S.rewards.slice().sort((a,b)=>a.cost-b.cost); }
+
+/* ---------- תצוגות ---------- */
+function vToday(){
+  const now = new Date(), dow = now.getDay(), tk = today();
+  const h = [];
+  h.push(`<div class="stack" style="gap:2px"><span class="eyebrow">יום ${DAY_FULL[dow]}, ${now.getDate()}.${now.getMonth()+1}</span><h2>${now.getHours()>=20 ? "שעת האימון הגיעה! 🎯" : "מה מתרגלים היום?"}</h2></div>`);
+  if (S.noDb) h.push(`<div class="banner warn">אין חיבור לנתונים. בדקו את האינטרנט ופתחו את האפליקציה מחדש.</div>`);
+  else if (S.slow && !S.loaded) h.push(`<div class="banner">הנתונים עוד לא נטענו. בדקו את החיבור לאינטרנט.</div>`);
+
+  h.push(`<div class="dogs">${DOGS.map(d=>{const r=readiness(d.id);return `<div class="dog ${d.id}">${avatar(d.id)}<div class="info"><div class="nm">${d.name}</div><div class="small">שלב ${r.stage}: ${STAGES[r.stage]}</div>${r.ready?`<span class="pill good">🎉 מוכנ${d.id==="nella"?"ה":""} לשלב הבא</span>`:""}</div></div>`}).join("")}</div>`);
+
+  const fam = activeFamily();
+  if (S.loaded && !fam.length){
+    h.push(S.isOwner ? `<div class="empty"><span class="big-ic">👨‍👩‍👧‍👧</span><b>מתחילים: מי במשפחה?</b><span class="small">הוסיפו את בני המשפחה, ואז תוכלו לחלק משימות.</span><button class="btn primary" data-action="addMember">הוספת בן משפחה</button></div>`
+                     : `<div class="empty">מנהל האפליקציה עוד לא הוסיף את בני המשפחה.</div>`);
+  }
+  const todays = S.tasks.filter(t=>t.active!==false && (t.days||[]).includes(dow) && EXM[t.exId]);
+  const doneMap = {};
+  S.logs.filter(l=>l.date===tk && l.taskId).forEach(l=>doneMap[l.taskId]=l);
+  if (todays.length){
+    const done = todays.filter(t=>doneMap[t.id]).length;
+    h.push(`<div class="row"><span class="pill ${done===todays.length?"good":"tan"}">${done===todays.length?"🎉 ":""}${done} מתוך ${todays.length} משימות בוצעו</span></div>`);
+    const byM = {};
+    todays.forEach(t=>(byM[t.member] ||= []).push(t));
+    const order = fam.map(f=>f.id).filter(id=>byM[id]);
+    if (S.me && byM[S.me]) order.sort((a,b)=>(a===S.me?-1:b===S.me?1:0));
+    Object.keys(byM).forEach(id=>{ if(!order.includes(id)) order.push(id) });
+    order.forEach(mid=>{
+      const nm = mName(mid);
+      h.push(`<div class="stack"><div class="group-h"><span class="ini" style="background:${PCOL[pIdx(mid)]}">${esc(nm[0])}</span><h3>${esc(nm)}</h3>${mid===S.me?`<span class="pill tan">אני</span>`:""}</div>`);
+      byM[mid].forEach(t=>{
+        const e = EXM[t.exId];
+        h.push(taskCard({key:"t:"+t.id, dog:t.dog, e, sub:`${dogName(t.dog)} · ${e.where} · ${e.min} דק׳`, log:doneMap[t.id], action:`<button class="btn primary block" data-action="log" data-task="${esc(t.id)}">✔ סיימתי, לסמן ביצוע</button>`}));
+      });
+      h.push(`</div>`);
+    });
+  }
+
+  h.push(`<button class="walklink" data-tab="walks">🚶 הורדות היום: ${SLOTS.map(([sl,ic,lb])=>`${lb} ${slotDone(slotDoc(tk,sl))?"✔":"–"}`).join(" · ")}<span class="sp"></span>‹</button>`);
+
+  /* תרגילי השלב הנוכחי: מופיעים כל יום, גם בלי משימה */
+  const assigned = new Set(todays.map(t=>t.dog+":"+t.exId));
+  const loggedToday = new Set(S.logs.filter(l=>l.date===tk).map(l=>l.dog+":"+l.exId));
+  if (!todays.length && fam.length) {
+  const sugOpen = S.open.has("sug");
+  h.push(`<details class="sug" data-key="sug" ${sugOpen?"open":""}><summary><span class="sp"><b>💡 לא שובצו משימות להיום</b><br><span class="small muted">פתחו כדי לבחור תרגיל לפי השלב של כל כלב</span></span><span class="chev">‹</span></summary><div class="stack" style="gap:14px;padding-top:12px">`);
+  DOGS.forEach(d=>{
+    const st = dogStage(d.id);
+    const ids = (CORE[st]||[]).filter(id=>!EXM[id].dogs || EXM[id].dogs.includes(d.id));
+    if (d.id==="nella") EX.filter(e=>e.stage==="n").forEach(e=>ids.push(e.id));
+    const list = ids.map(id=>EXM[id]).filter(e=>e && !assigned.has(d.id+":"+e.id));
+    if (!list.length) return;
+    h.push(`<div class="stack"><div class="group-h"><h3>עוד תרגילים ל${d.name}</h3><span class="pill d-${d.id}">שלב ${st}</span></div>`);
+    list.forEach(e=>{
+      const log = S.logs.filter(l=>l.date===tk && l.dog===d.id && l.exId===e.id && !l.taskId).sort((a,b)=>b.ts-a.ts)[0];
+      h.push(taskCard({key:"x:"+d.id+":"+e.id, dog:d.id, e, sub:`${e.where} · ${e.min} דק׳${e.stage==="n"?" · מסלול נלה":""}`, log, action:`<div class="row"><button class="btn primary sp" data-action="logEx" data-dog="${d.id}" data-ex="${e.id}">✔ תרגלתי, לרשום</button>${S.isOwner?`<button class="btn ghost" data-action="assignEx" data-dog="${d.id}" data-ex="${e.id}">📌 שיבוץ</button>`:""}</div>`}));
+    });
+    h.push(`</div>`);
+  });
+  h.push(`</div></details>`);
+  }
+
+  h.push(`<button class="btn ghost block" data-action="log">➕ תרגלתי משהו אחר</button>`);
+  return h.join("");
+}
+
+function vTasks(){
+  const h = [`<div class="row"><h2 class="sp">משימות קבועות</h2>${S.isOwner?`<button class="btn primary" data-action="newTask">משימה חדשה</button>`:""}</div>`];
+  if (!S.isOwner) h.push(`<p class="small muted" style="margin:0">רק מנהל האפליקציה משנה משימות.</p>`);
+  const fam = activeFamily();
+  const groups = fam.map(f=>({f, list:S.tasks.filter(t=>t.member===f.id)})).filter(g=>g.list.length);
+  if (!S.tasks.length) h.push(`<div class="empty">עוד אין משימות.${S.isOwner?` לחצו על "משימה חדשה" כדי לחלק את התרגילים בין בני המשפחה.`:""}</div>`);
+  groups.forEach(({f,list})=>{
+    h.push(`<div class="stack"><div class="group-h"><h3>${esc(f.name)}</h3><span class="pill">${f.kind==="kid"?"ילדה":"מבוגר"}</span></div>`);
+    list.forEach(t=>{
+      const e = EXM[t.exId]; if (!e) return;
+      const days = (t.days||[]).length===7 ? "כל יום" : (t.days||[]).slice().sort().map(d=>DAYS[d]).join(" ");
+      h.push(`<div class="task" style="${t.active===false?"opacity:.5":""}">${avatar(t.dog,"sm")}<div class="body"><div class="ttl">${esc(e.title)}</div><div class="small muted">${dogName(t.dog)} · ${days}</div></div>${S.isOwner?`<button class="iconbtn" data-action="toggleTask" data-id="${esc(t.id)}">${t.active===false?"הפעלה":"השהיה"}</button><button class="iconbtn" data-action="delTask" data-id="${esc(t.id)}" style="color:var(--warn)">מחיקה</button>`:""}</div>`);
+    });
+    h.push(`</div>`);
+  });
+  if (S.isOwner){
+    h.push(`<div class="card stack"><div class="row"><h3 class="sp">בני המשפחה</h3><button class="btn small" data-action="addMember">הוספה</button></div>${fam.length?fam.map(f=>`<div class="row"><span class="sp">${esc(f.name)} <span class="small muted">· ${f.kind==="kid"?"ילדה":"מבוגר"}</span></span><button class="iconbtn" data-action="delMember" data-id="${esc(f.id)}">הסרה</button></div>`).join(""):`<span class="small muted">עוד לא נוספו.</span>`}<p class="small muted" style="margin:0">לילדות האפליקציה לא מאפשרת לשבץ תרגילים שמסומנים "מבוגרים בלבד".</p></div>`);
+  }
+  return h.join("");
+}
+
+function vLibrary(){
+  const f = S.libFilter;
+  const tabs = [[1,"שלב 1"],[2,"שלב 2"],[3,"שלב 3"],["n","מסלול נלה"],["dict","מילון"],["rules","כללים"]];
+  const h = [`<h2>ספריית תרגילים</h2>`, `<div class="seg" role="group" aria-label="סינון">${tabs.map(([k,l])=>`<button type="button" data-action="lib" data-k="${k}" aria-pressed="${String(f)===String(k)}">${l}</button>`).join("")}</div>`];
+  if (f==="dict"){
+    h.push(`<div class="card"><p class="small muted" style="margin-top:0">כל המשפחה משתמשת באותן מילים בדיוק.</p><table class="dict"><tbody>${DICT.map(([a,b])=>`<tr><td>${a}</td><td><span class="cue">${b}</span></td></tr>`).join("")}</tbody></table></div>`);
+  } else if (f==="rules"){
+    h.push(`<div class="card"><ul class="rules">${RULES.map(r=>`<li>${r}</li>`).join("")}</ul></div>`);
+  } else {
+    if (typeof f==="number") h.push(`<p class="muted" style="margin:0">${STAGES[f]}${f===1?". כולל תרגילים שממשיכים לאורך כל התוכנית.":""}</p>`);
+    else h.push(`<p class="muted" style="margin:0">תרגילים לנלה בלבד, לאורך כל התקופה, פעמיים בשבוע.</p>`);
+    EX.filter(e=>String(e.stage)===String(f)).forEach(e=>{
+      h.push(`<details class="ex"><summary><span class="chev">‹</span><span class="t">${esc(e.title)}</span>${e.cue?`<span class="cue">${esc(e.cue)}</span>`:""}</summary><div class="in">${exBody(e)}${S.isOwner?`<button class="btn ghost" data-action="assignEx" data-ex="${e.id}">📌 שיבוץ למישהו</button>`:""}</div></details>`);
+    });
+  }
+  return h.join("");
+}
+
+function vProgress(){
+  const h = [`<h2>התקדמות</h2>`];
+  DOGS.forEach(d=>{
+    const r = readiness(d.id);
+    const st = r.stage;
+    const days = [...Array(14)].map((_,i)=>{const k=dkey(new Date(Date.now()-(13-i)*DAY));return S.logs.filter(l=>l.dog===d.id&&l.date===k).length});
+    const mx = Math.max(1,...days);
+    h.push(`<div class="card stack" style="gap:14px">
+      <div class="row">${S.isOwner?`<button class="iconbtn" style="padding:0" data-action="photo" data-dog="${d.id}" aria-label="החלפת תמונה של ${d.name}">${avatar(d.id,"lg")}</button>`:avatar(d.id,"lg")}<div class="sp stack" style="gap:6px"><div class="nm" style="font-family:var(--display);font-weight:700;font-size:32px;line-height:1;color:var(--${d.id})">${d.name}</div><div class="small muted">שלב ${st} מתוך 3: ${STAGES[st]}</div><div class="stage-track ${d.id}">${[1,2,3].map(i=>`<div class="${i<=st?"on":""}"></div>`).join("")}</div></div></div>
+      ${S.isOwner && !S.dogs[d.id]?.photo?`<span class="small muted">לחצו על העיגול כדי להוסיף תמונה.</span>`:""}
+      ${(S.dogs[d.id]?.gallery||[]).length?`<div class="gallery">${S.dogs[d.id].gallery.filter(g=>S.photos[g]?.data).map(g=>`<img src="${esc(S.photos[g].data)}" alt="${d.name}" loading="lazy">`).join("")}</div>`:""}
+      <div class="stack" style="gap:6px"><span class="eyebrow">תנאים למעבר שלב</span><div class="check"><span class="h">תרגיל</span><span class="h">ממוצע 5 אחרונים</span><span class="h"></span>${r.rows.map(x=>`<span>${esc(x.ex.title)}</span><span class="num">${x.count?x.avg.toFixed(1):"–"} <span class="muted small">(${Math.min(x.count,5)}/5)</span></span><span>${x.ready?`<span class="pill good">✓</span>`:`<span class="pill">עוד</span>`}</span>`).join("")}</div></div>
+      <p class="small muted" style="margin:0">מוכן כשבכל תרגיל יש 5 רישומים לפחות וממוצע של 2.5 כוכבים ומעלה.</p>
+      ${r.ready && st<3?`<div class="banner">${d.name} ${d.id==="nella"?"מוכנה":"מוכן"} לשלב ${st+1}: ${STAGES[st+1]}.</div>`:""}
+      ${r.ready && st===3?`<div class="banner">${d.name} השלים${d.id==="nella"?"ה":""} את כל השלבים. ממשיכים לתרגל כדי לשמור על ההישג.</div>`:""}
+      ${S.isOwner?`<div class="row">${st<3?`<button class="btn ${r.ready?"primary":"ghost"} small" data-action="stage" data-dog="${d.id}" data-dir="1">מעבר לשלב ${st+1}</button>`:""}${st>1?`<button class="btn ghost small" data-action="stage" data-dog="${d.id}" data-dir="-1">חזרה לשלב ${st-1}</button>`:""}</div>`:""}
+      ${(()=>{const ks=[...Array(7)].map((_,i)=>dkey(new Date(Date.now()-i*DAY))); const W=S.walks.filter(w=>ks.includes(w.date) && w.slot); if(!W.length) return ""; const walks=W.filter(slotDone).length; const out=new Set(W.filter(w=>w.dogs?.[d.id]?.pee||w.dogs?.[d.id]?.poop).map(w=>w.date));
+        return `<div class="stack" style="gap:6px"><span class="eyebrow">הורדות ב-7 הימים האחרונים</span><div class="statrow" style="grid-template-columns:1fr 1fr"><div><b class="num">${(walks/7).toFixed(1)}</b><span class="small muted">הורדות ביום</span></div><div><b class="num">${out.size}/7</b><span class="small muted">ימים עם צרכים בחוץ</span></div></div></div>`})()}
+      <div class="stack" style="gap:4px"><span class="eyebrow">תרגולים ב-14 הימים האחרונים</span><div class="bars ${d.id}" dir="ltr">${days.map(n=>`<div class="${n?"":"zero"}" style="height:${n?Math.max(10,n/mx*100):4}%" title="${n}"></div>`).join("")}</div><div class="row small muted" style="justify-content:space-between"><span>היום</span><span>לפני שבועיים</span></div></div>
+    </div>`);
+  });
+  return h.join("");
+}
+
+function vPoints(){
+  const g = goal();
+  const h = [`<h2>נקודות ופרסים</h2>`];
+  /* יעד משפחתי מדורג */
+  const max = g.tiers.length ? g.tiers[g.tiers.length-1].target : 0;
+  const allClaimed = g.tiers.length && g.tiers.every((t,i)=>g.claimed.includes(i));
+  h.push(`<div class="card stack" style="gap:14px;background:var(--yard-soft)"><div class="row"><h3 class="sp">👨‍👩‍👧‍👧 יעדים משפחתיים</h3>${S.isOwner?`<button class="btn small ghost" data-action="editTiers">עריכה</button>`:""}</div>`);
+  if (!g.tiers.length){
+    h.push(`<span class="muted">עוד לא נקבעו יעדים משפחתיים.</span>`);
+  } else {
+    h.push(`<div class="row" style="align-items:baseline"><span class="big num" style="color:var(--yard)">${g.total}</span><span class="muted">נקודות של כל המשפחה ביחד</span></div>
+      <div class="tierbar"><div class="fill" style="width:${Math.min(100,g.total/max*100)}%"></div>${g.tiers.map((t,i)=>`<span class="mark ${g.total>=t.target?"on":""}" style="inset-inline-start:calc(${t.target/max*100}% - 14px)">${MEDAL[i]}</span>`).join("")}</div>
+      <div class="stack" style="gap:8px">${g.tiers.map((t,i)=>{const reached=g.total>=t.target, cl=g.claimed.includes(i);
+        return `<div class="tier ${reached?"reached":""}"><span class="medal">${MEDAL[i]}</span><div class="sp"><div style="font-weight:600">${esc(t.title)}</div><div class="small muted num">${t.target} נקודות</div></div>${cl?`<span class="pill good">✔ מומש</span>`:reached?(S.isOwner?`<button class="btn good small" data-action="claimTier" data-i="${i}">מימשנו!</button>`:`<span class="pill good">🎉 הגעתם!</span>`):`<span class="pill">עוד ${t.target-g.total}</span>`}</div>`}).join("")}</div>`);
+    if (allClaimed && S.isOwner) h.push(`<button class="btn primary" data-action="goalDone">🔄 מתחילים סבב חדש</button>`);
+  }
+  if (g.history.length) h.push(`<span class="small muted">סבבים שהושלמו: ${g.history.length}</span>`);
+  h.push(`</div>`);
+
+  /* נקודות אישיות */
+  const fam = activeFamily(), pt = personalTiers();
+  if (fam.length){
+    h.push(`<div class="stack"><h3>⭐ נקודות אישיות</h3><div class="people">${fam.map(f=>{const p=pointsOf(f.id);const next=pt.find(r=>r.cost>p.balance);const prevCost=[...pt].reverse().find(r=>r.cost<=p.balance)?.cost||0;
+      return `<div class="person" style="background:${PSOFT[pIdx(f.id)]}"><div class="nm">${esc(f.name)}</div><div class="big num" style="font-size:38px;color:${PCOL[pIdx(f.id)]}">${p.balance}</div><div class="small muted">+${p.week} השבוע</div>${pt.length?(next?`<div class="minibar"><div style="width:${Math.min(100,(p.balance-prevCost)/(next.cost-prevCost)*100)}%;background:${PCOL[pIdx(f.id)]}"></div></div><div class="small">עוד ${next.cost-p.balance} ל${esc(next.title)}</div>`:`<div class="small">🏆 אפשר לממש כל פרס!</div>`):""}</div>`}).join("")}</div><p class="small muted" style="margin:0">${PTS} נקודות על כל תרגול, בלי קשר לדירוג. הדירוג הוא על הכלב, לא על מי שתרגל.</p></div>`);
+  }
+  /* סולם פרסים אישיים */
+  h.push(`<div class="card stack" style="background:var(--gold-soft)"><div class="row"><h3 class="sp">🎁 סולם פרסים אישיים</h3>${S.isOwner?`<button class="btn small ghost" data-action="addReward">פרס חדש</button>`:""}</div>${pt.length?pt.map((r,i)=>`<div class="tier"><span class="medal">${MEDAL[Math.min(i,4)]}</span><div class="sp"><div style="font-weight:600">${esc(r.title)}</div><div class="small muted num">${r.cost} נקודות</div></div>${S.isOwner?`<button class="iconbtn" data-action="delReward" data-id="${esc(r.id)}">מחיקה</button>`:""}</div>`).join(""):`<span class="small muted">עוד לא הוגדרו פרסים.</span>`}${S.isOwner && pt.length && fam.length?`<button class="btn primary" data-action="redeem">🎁 מימוש פרס</button>`:""}</div>`);
+  const hist = S.redemptions.slice().sort((a,b)=>b.ts-a.ts).slice(0,8);
+  if (hist.length) h.push(`<div class="stack"><h3>מומשו לאחרונה</h3>${hist.map(r=>`<div class="row small"><span class="sp">${esc(mName(r.member))}: ${esc(r.title)}</span><span class="muted num">−${r.cost}</span></div>`).join("")}</div>`);
+  return h.join("");
+}
+
+const SLOTS = [["morning","☀️","בוקר"],["noon","🌤️","צהריים"],["evening","🌙","ערב"]];
+const slotDoc = (k, slot) => S.walks.find(w=>w.id===`${k}_${slot}`);
+const slotDone = w => !!(w && w.member);
+function vWalks(){
+  const tk = today(), sel = S.walkDate || tk;
+  const sd = new Date(sel+"T12:00:00");
+  const fam = activeFamily();
+  const h = [`<h2>🚶 הורדות</h2>`];
+  h.push(`<div class="datenav"><button class="btn small ghost" data-action="walkShift" data-n="-1" aria-label="יום קודם">›</button><div class="sp datelabel"><b>${sel===tk?"היום":`יום ${DAY_FULL[sd.getDay()]}`}</b> <span class="muted">${sd.getDate()}.${sd.getMonth()+1}.${sd.getFullYear()}</span></div><button class="btn small ghost" data-action="walkShift" data-n="1" aria-label="יום הבא" ${sel>=tk?"disabled":""}>‹</button>${sel!==tk?`<button class="btn small primary" data-action="walkDay" data-k="${tk}">היום</button>`:""}</div>`);
+  if (!fam.length){ h.push(`<div class="empty">צריך קודם להוסיף בני משפחה.</div>`); return h.join(""); }
+  const canWalk = S.isOwner;
+  if (!canWalk) h.push(`<div class="banner small">🔒 רק מבוגרים מעדכנים הורדות. כאן אפשר לראות מה כבר נעשה.</div>`);
+  SLOTS.forEach(([slot, ic, label])=>{
+    const w = slotDoc(sel, slot), who = w?.member, kid = member(who)?.kind==="kid";
+    h.push(`<div class="slot ${slotDone(w)?"done":""}"><div class="row"><h3 class="sp">${ic} ${label}</h3>${slotDone(w)?`<span class="pill good">✔ ${esc(mName(who))}</span>`:`<span class="pill">עוד לא</span>`}</div>
+      <div class="stack" style="gap:6px"><span class="eyebrow">מי הוריד?</span><div class="chips">${fam.map(f=>`<button type="button" class="pchip" data-action="slotWho" ${canWalk?"":"disabled"} data-slot="${slot}" data-id="${esc(f.id)}" aria-pressed="${who===f.id}" style="--pc:${PCOL[pIdx(f.id)]};--ps:${PSOFT[pIdx(f.id)]}"><span class="ini" style="background:${PCOL[pIdx(f.id)]}">${esc(f.name[0])}</span>${esc(f.name)}</button>`).join("")}</div></div>
+      ${DOGS.map(d=>{const dd=w?.dogs?.[d.id]||{};return `<div class="dogline ${d.id}">${avatar(d.id,"sm")}<b class="sp">${d.name}</b><button type="button" class="pchip" data-action="slotDog" ${canWalk?"":"disabled"} data-slot="${slot}" data-dog="${d.id}" data-k="pee" aria-pressed="${!!dd.pee}">💧 פיפי</button><button type="button" class="pchip" data-action="slotDog" ${canWalk?"":"disabled"} data-slot="${slot}" data-dog="${d.id}" data-k="poop" aria-pressed="${!!dd.poop}">💩 קקי</button></div>`}).join("")}
+    </div>`);
+  });
+
+  /* יומן מעקב: 14 יום או חודש שלם */
+  const mode = S.jMode || "14";
+  const nowD = new Date();
+  const curMonth = `${nowD.getFullYear()}-${pad(nowD.getMonth()+1)}`;
+  const jm = S.jMonth || curMonth;
+  let days;
+  if (mode==="month"){
+    const [yy,mm] = jm.split("-").map(Number);
+    const last = new Date(yy, mm, 0).getDate();
+    days = [...Array(last)].map((_,i)=>new Date(yy, mm-1, last-i, 12)).filter(d=>dkey(d)<=tk);
+  } else days = [...Array(14)].map((_,i)=>new Date(Date.now()-i*DAY));
+  const dkeys = days.map(dkey);
+  const cell = (k, sl) => { const w=slotDoc(k, sl); if(!slotDone(w)) return `<span class="muted">–</span>`;
+    const pee=DOGS.filter(d=>w.dogs?.[d.id]?.pee).length, poop=DOGS.filter(d=>w.dogs?.[d.id]?.poop).length;
+    return `<span class="cellin"><span class="ini" style="background:${PCOL[pIdx(w.member)]}" title="${esc(mName(w.member))}">${esc(mName(w.member)[0])}</span><span class="potty">${pee?"💧":""}${poop?"💩":""}</span></span>`; };
+  const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+  const [jy,jmn] = jm.split("-").map(Number);
+  const inRange = S.walks.filter(w=>dkeys.includes(w.date) && slotDone(w));
+  const possible = days.length*3;
+  h.push(`<div class="card stack" style="gap:10px"><div class="row"><h3 class="sp">📒 יומן הורדות</h3><div class="seg"><button type="button" data-action="jMode" data-m="14" aria-pressed="${mode==="14"}">14 יום</button><button type="button" data-action="jMode" data-m="month" aria-pressed="${mode==="month"}">חודש</button></div></div>
+    ${mode==="month"?`<div class="datenav"><button class="btn small ghost" data-action="jMonth" data-n="-1" aria-label="חודש קודם">›</button><div class="sp datelabel"><b>${MONTHS[jmn-1]} ${jy}</b></div><button class="btn small ghost" data-action="jMonth" data-n="1" aria-label="חודש הבא" ${jm>=curMonth?"disabled":""}>‹</button></div>`:""}
+    <div class="chips">${activeFamily().map(f=>`<span class="pchip" style="background:${PSOFT[pIdx(f.id)]};box-shadow:none;cursor:default"><span class="ini" style="background:${PCOL[pIdx(f.id)]}">${esc(f.name[0])}</span>${esc(f.name)} <b class="num" style="color:${PCOL[pIdx(f.id)]}">${inRange.filter(w=>w.member===f.id).length}</b></span>`).join("")}</div>
+    <div class="tablewrap"><table class="matrix journal"><thead><tr><th>תאריך</th>${SLOTS.map(([,ic,lb])=>`<th>${ic}<div class="small">${lb}</div></th>`).join("")}</tr></thead><tbody>${days.length?days.map(d=>{const k=dkey(d);
+    return `<tr class="${k===sel?"sel":""} ${d.getDay()===0?"sat":""}" data-action="walkDay" data-k="${k}"><td><b>${k===tk?"היום":DAYS[d.getDay()]}</b> <span class="muted small">${d.getDate()}.${d.getMonth()+1}</span></td>${SLOTS.map(([sl])=>`<td>${cell(k,sl)}</td>`).join("")}</tr>`}).join(""):`<tr><td colspan="4" class="muted">אין ימים להצגה.</td></tr>`}</tbody></table></div>
+    <span class="small muted">לחצו על יום כדי לראות ולעדכן אותו למעלה.</span></div>`);
+  return h.join("");
+}
+async function setSlot(slot, patch){
+  const k = S.walkDate || today(), id = `${k}_${slot}`;
+  const cur = slotDoc(k, slot) || {date:k, slot, member:null, dogs:{}};
+  const next = {date:k, slot, member:cur.member||null, dogs:JSON.parse(JSON.stringify(cur.dogs||{})), ts:Date.now()};
+  patch(next);
+  const empty = !next.member && !Object.values(next.dogs).some(v=>v.pee||v.poop);
+  await write(()=> empty ? S.db.doc("walks/"+id).delete() : S.db.doc("walks/"+id).set(next));
+}
+
+const VIEWS = {today:vToday, walks:vWalks, tasks:vTasks, library:vLibrary, progress:vProgress, points:vPoints};
+function render(){
+  document.querySelectorAll("section.view").forEach(s=>{const on=s.dataset.view===S.tab;s.hidden=!on;if(on)s.innerHTML=VIEWS[S.tab]()});
+  document.querySelectorAll("nav.tabs button").forEach(b=>{ if(b.dataset.tab===S.tab) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  const m = member(S.me);
+  document.getElementById("meName").textContent = m ? m.name : "מי מתרגל?";
+  document.getElementById("meDot").textContent = m ? m.name[0] : "?";
+}
+
+/* ---------- גיליונות ---------- */
+const scrim = document.getElementById("scrim"), sheet = document.getElementById("sheet");
+let sheetState = {};
+function openSheet(html, state={}){sheetState=state;sheet.innerHTML=html;scrim.hidden=false;sheet.querySelector("input,select,button")?.focus()}
+function closeSheet(){scrim.hidden=true;sheet.innerHTML="";sheetState={}}
+scrim.addEventListener("click",e=>{if(e.target===scrim)closeSheet()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!scrim.hidden)closeSheet()});
+
+function sheetPickMe(){
+  const fam = activeFamily();
+  openSheet(`<h2>מי משתמש בטלפון הזה?</h2>${fam.length?`<div class="choice">${fam.map(f=>`<button type="button" data-action="setMe" data-id="${esc(f.id)}" aria-pressed="${f.id===S.me}"><span class="ava sm">${esc(f.name[0])}</span>${esc(f.name)}</button>`).join("")}</div>`:`<p class="muted">עוד אין בני משפחה ברשימה.</p>`}<p class="small muted" style="margin:0">הבחירה נשמרת רק במכשיר הזה, ומשמשת כברירת מחדל כשרושמים תרגול.</p>
+   <div class="card stack" style="background:var(--sunk);box-shadow:none">${S.isOwner?`<div class="row"><span class="sp">🔓 מצב מנהל פעיל במכשיר הזה</span><button class="btn small ghost" data-action="adminOff">יציאה</button></div><button class="btn small ghost" data-action="adminPin">שינוי קוד מנהל</button>`:`<span class="small">🔒 מצב מנהל: שיבוץ משימות, פרסים ומעבר שלבים</span><button class="btn small ghost" data-action="adminOn">כניסה למצב מנהל</button>`}</div>
+   <button class="btn ghost small" data-action="leaveFamily" style="color:var(--warn)">ניתוק המכשיר מהמשפחה</button>
+   <button class="btn ghost" data-action="close">סגירה</button>`);
+}
+
+function sheetLog(taskId, preset){
+  const t = taskId ? S.tasks.find(x=>x.id===taskId) : null;
+  const fam = activeFamily();
+  if (!fam.length){ toast("צריך קודם להוסיף בני משפחה."); return; }
+  const st = {taskId:t?.id||null, member:t?.member || (member(S.me)?S.me:fam[0].id), dog:t?.dog||preset?.dog||"simba", exId:t?.exId||preset?.exId||null, rating:0};
+  sheetState = st;
+  drawLog();
+  scrim.hidden=false;
+}
+function drawLog(){
+  const st = sheetState, fam = activeFamily();
+  const kind = member(st.member)?.kind || "adult";
+  const list = exFor(st.dog, kind);
+  if (!st.taskId && !list.find(e=>e.id===st.exId)) st.exId = list[0]?.id || null;
+  const e = EXM[st.exId];
+  sheet.innerHTML = `<h2>${st.taskId?"סימון ביצוע":"רישום תרגול"}</h2>
+   ${st.taskId?`<div class="row">${avatar(st.dog,"sm")}<div class="sp"><b>${esc(e.title)}</b><div class="small muted">${dogName(st.dog)}</div></div>${e.cue?`<span class="cue">${esc(e.cue)}</span>`:""}</div>`:`
+   <div class="stack" style="gap:6px"><span class="eyebrow">איזה כלב</span><div class="seg">${DOGS.map(d=>`<button type="button" data-action="lgDog" data-id="${d.id}" aria-pressed="${st.dog===d.id}">${d.name}</button>`).join("")}</div></div>
+   <label class="f">תרגיל<select id="lgEx">${list.map(x=>`<option value="${x.id}" ${x.id===st.exId?"selected":""}>${esc(x.title)}${x.stage==="n"?" (מסלול נלה)":""}</option>`).join("")}</select></label>
+   ${kind==="kid"?`<span class="small muted">תרגילים של מבוגרים בלבד לא מופיעים לילדות.</span>`:""}`}
+   <label class="f">מי תרגל<select id="lgWho">${fam.map(f=>`<option value="${esc(f.id)}" ${f.id===st.member?"selected":""}>${esc(f.name)}</option>`).join("")}</select></label>
+   ${st.taskId && kind==="kid" && e?.adult?`<div class="banner warn">התרגיל הזה מיועד למבוגרים בלבד.</div>`:""}
+   <div class="stack" style="gap:6px"><span class="eyebrow">איך הלך לכלב?</span><div class="rate">${[1,2,3].map(n=>`<button type="button" data-action="lgRate" data-n="${n}" aria-pressed="${st.rating===n}"><span class="f">${["","😬","🙂","🤩"][n]}</span>${RATES[n]}</button>`).join("")}</div></div>
+   <label class="f">הערה (לא חובה)<textarea id="lgNote" rows="2" maxlength="300" placeholder="למשל: נבח פעם אחת על חתול, חזר מהר"></textarea></label>
+   <div class="row"><button class="btn primary sp" data-action="lgSave" ${st.rating&&st.exId?"":"disabled"}>שמירה · +${PTS} נקודות</button><button class="btn ghost" data-action="close">ביטול</button></div>`;
+  const keepNote = st.note; if (keepNote) sheet.querySelector("#lgNote").value = keepNote;
+}
+sheet.addEventListener("change", e=>{
+  if (e.target.id==="wkTime"){sheetState.time=e.target.value;}
+  if (e.target.id==="lgEx"){sheetState.exId=e.target.value;}
+  if (e.target.id==="lgWho"){sheetState.member=e.target.value;sheetState.note=sheet.querySelector("#lgNote")?.value;drawLog();}
+  if (e.target.id==="rdWho"){sheetState.member=e.target.value;drawRedeem();}
+  if (e.target.id==="rdReward"){sheetState.rewardId=e.target.value;drawRedeem();}
+});
+
+function sheetTask(preset){
+  const fam = activeFamily();
+  if (!fam.length){ toast("צריך קודם להוסיף בני משפחה."); return; }
+  sheetState = {members: preset?.member?[preset.member]:[], dogs: preset?.dog?[preset.dog]:["simba"], exId: preset?.exId||null, days:[0,1,2,3,4,5,6]};
+  drawTask(); scrim.hidden=false;
+}
+function taskOptions(st){
+  const kidSel = st.members.some(id=>member(id)?.kind==="kid");
+  if (!st.dogs.length) return {list:[], kidSel};
+  const lists = st.dogs.map(d=>exFor(d, kidSel?"kid":"adult").map(e=>e.id));
+  const list = EX.filter(e=>lists.every(l=>l.includes(e.id)));
+  return {list, kidSel};
+}
+function drawTask(){
+  const st = sheetState, fam = activeFamily();
+  const {list, kidSel} = taskOptions(st);
+  if (st.exId && !list.find(e=>e.id===st.exId)) st.exId = null;
+  const n = st.members.length * st.dogs.length;
+  const daysEq = a => a.length===st.days.length && a.every(x=>st.days.includes(x));
+  sheet.innerHTML = `<h2>📌 שיבוץ משימה</h2>
+   <div class="stack" style="gap:6px"><span class="eyebrow">1. למי? אפשר לבחור כמה</span><div class="chips">${fam.map(f=>`<button type="button" class="pchip" data-action="tkMember" data-id="${esc(f.id)}" aria-pressed="${st.members.includes(f.id)}" style="--pc:${PCOL[pIdx(f.id)]};--ps:${PSOFT[pIdx(f.id)]}"><span class="ini" style="background:${PCOL[pIdx(f.id)]}">${esc(f.name[0])}</span>${esc(f.name)}</button>`).join("")}</div></div>
+   <div class="stack" style="gap:6px"><span class="eyebrow">2. עם איזה כלב?</span><div class="dogpick">${DOGS.map(d=>`<button type="button" class="${d.id}" data-action="tkDog" data-id="${d.id}" aria-pressed="${st.dogs.includes(d.id)}">${avatar(d.id,"sm")}<span><b>${d.name}</b><br><span class="small">שלב ${dogStage(d.id)}</span></span></button>`).join("")}</div></div>
+   <div class="stack" style="gap:6px"><span class="eyebrow">3. איזה תרגיל?</span>${kidSel?`<span class="small muted">נבחרה ילדה, לכן מוצגים רק תרגילים שמתאימים לילדות.</span>`:""}${st.dogs.length>1?`<span class="small muted">מוצגים תרגילים שמתאימים לשני הכלבים.</span>`:""}
+     <div class="choice">${list.length?list.map(e=>`<button type="button" data-action="tkEx" data-id="${e.id}" aria-pressed="${st.exId===e.id}"><span class="sp"><b>${esc(e.title)}</b><br><span class="small muted">${e.stage==="n"?"מסלול נלה":"שלב "+e.stage} · ${e.where} · ${e.min} דק׳</span></span>${e.cue?`<span class="cue">${esc(e.cue)}</span>`:""}</button>`).join(""):`<span class="small muted">בחרו כלב כדי לראות תרגילים.</span>`}</div></div>
+   <div class="stack" style="gap:6px"><span class="eyebrow">4. באילו ימים?</span><div class="chips"><button type="button" class="pchip" data-action="tkPreset" data-p="all" aria-pressed="${daysEq([0,1,2,3,4,5,6])}">כל יום</button><button type="button" class="pchip" data-action="tkPreset" data-p="week" aria-pressed="${daysEq([0,1,2,3,4])}">א׳–ה׳</button><button type="button" class="pchip" data-action="tkPreset" data-p="wkend" aria-pressed="${daysEq([5,6])}">סופ״ש</button></div><div class="daypick">${DAYS.map((d,i)=>`<button type="button" data-action="tkDay" data-i="${i}" aria-pressed="${st.days.includes(i)}">${d}</button>`).join("")}</div></div>
+   <div class="row"><button class="btn primary sp" data-action="tkSave" ${n&&st.exId&&st.days.length?"":"disabled"}>${n>1?`שיבוץ ${n} משימות`:"שיבוץ"}</button><button class="btn ghost" data-action="close">ביטול</button></div>`;
+}
+
+function sheetWalk(){
+  const fam = activeFamily();
+  if (!fam.length){ toast("צריך קודם להוסיף בני משפחה."); return; }
+  const now = new Date();
+  const adult = fam.find(f=>f.kind==="adult");
+  sheetState = {member: member(S.me)?S.me:(adult||fam[0]).id, dogs:["simba","nella"], min:10, time:`${pad(now.getHours())}:${pad(now.getMinutes())}`, pee:[], poop:[]};
+  drawWalk(); scrim.hidden=false;
+}
+function drawWalk(){
+  const st = sheetState, fam = activeFamily();
+  const kid = member(st.member)?.kind==="kid";
+  const tog = (arr,id,label,ic) => `<button type="button" class="pchip" data-action="wkTog" data-arr="${arr}" data-id="${id}" aria-pressed="${st[arr].includes(id)}">${ic} ${label}</button>`;
+  sheet.innerHTML = `<h2>🚶 רישום הורדה</h2>
+   <div class="stack" style="gap:6px"><span class="eyebrow">מי הוריד?</span><div class="chips">${fam.map(f=>`<button type="button" class="pchip" data-action="wkWho" data-id="${esc(f.id)}" aria-pressed="${st.member===f.id}" style="--pc:${PCOL[pIdx(f.id)]};--ps:${PSOFT[pIdx(f.id)]}"><span class="ini" style="background:${PCOL[pIdx(f.id)]}">${esc(f.name[0])}</span>${esc(f.name)}</button>`).join("")}</div></div>
+   <div class="stack" style="gap:6px"><span class="eyebrow">אילו כלבים?</span><div class="dogpick">${DOGS.map(d=>`<button type="button" class="${d.id}" data-action="wkDog" data-id="${d.id}" aria-pressed="${st.dogs.includes(d.id)}">${avatar(d.id,"sm")}<b>${d.name}</b></button>`).join("")}</div></div>
+   <div class="stack" style="gap:6px"><span class="eyebrow">כמה זמן?</span><div class="chips">${[5,10,15,20,30,45,60].map(m=>`<button type="button" class="pchip" data-action="wkMin" data-m="${m}" aria-pressed="${st.min===m}">${m} דק׳</button>`).join("")}</div></div>
+   <label class="f">שעת היציאה<input type="time" id="wkTime" value="${st.time}"></label>
+   <div class="stack" style="gap:6px"><span class="eyebrow">עשו צרכים בחוץ?</span><div class="chips">${st.dogs.map(id=>tog("pee",id,dogName(id),"💧")+tog("poop",id,dogName(id),"💩")).join("")}</div></div>
+   <div class="row"><button class="btn primary sp" data-action="wkSave" ${st.dogs.length?"":"disabled"}>שמירה</button><button class="btn ghost" data-action="close">ביטול</button></div>`;
+}
+
+function sheetForm(title, fields, saveAction){
+  openSheet(`<h2>${title}</h2><form id="sf" class="stack" style="gap:14px">${fields}<div class="row"><button class="btn primary sp" type="submit">שמירה</button><button class="btn ghost" type="button" data-action="close">ביטול</button></div></form>`, {saveAction});
+}
+sheet.addEventListener("submit", async e=>{
+  e.preventDefault();
+  const fd = new FormData(e.target); const v = Object.fromEntries(fd.entries());
+  const a = sheetState.saveAction;
+  if (a==="member"){
+    if (!v.name.trim()) return;
+    const ok = await write(()=>S.db.collection("family").add({name:v.name.trim().slice(0,30), kind:v.kind, active:true, order:Date.now()}), "נוסף");
+    if (ok) closeSheet();
+  }
+  if (a==="reward"){
+    const cost = parseInt(v.cost,10); if (!v.title.trim() || !(cost>0)) return;
+    const ok = await write(()=>S.db.collection("rewards").add({title:v.title.trim().slice(0,40), cost}), "הפרס נוסף");
+    if (ok) closeSheet();
+  }
+  if (a==="adminOn"){
+    if ((v.pin||"").trim() && (v.pin||"").trim()===String(S.settings?.adminPin||"")){ store.set("admin",FAMILY); S.isOwner=true; closeSheet(); render(); toast("🔓 מצב מנהל פעיל"); }
+    else { toast("קוד שגוי"); }
+    return;
+  }
+  if (a==="adminPin"){
+    const pin=(v.pin||"").trim(); if (pin.length<4) { toast("לפחות 4 ספרות"); return; }
+    const ok = await write(()=>S.db.doc("settings/main").set({...(S.settings||{}), adminPin:pin}), "קוד המנהל עודכן");
+    if (ok) closeSheet(); return;
+  }
+  if (a==="tiers"){
+    const tiers=[0,1,2].map(i=>({title:(v["t"+i]||"").trim().slice(0,40), target:parseInt(v["p"+i],10)})).filter(t=>t.title && t.target>0).sort((x,y)=>x.target-y.target);
+    if (!tiers.length) return;
+    const cur=S.settings||{};
+    const ok = await write(()=>S.db.doc("settings/main").set({...cur, familyTiers:tiers, tiersClaimed:cur.tiersClaimed||[], goalStart:cur.goalStart||Date.now(), goalsDone:cur.goalsDone||[]}), "היעדים נשמרו");
+    if (ok) closeSheet();
+  }
+  if (a==="goal"){
+    const target = parseInt(v.target,10); if (!v.title.trim() || !(target>0)) return;
+    const cur = S.settings || {};
+    const ok = await write(()=>S.db.doc("settings/main").set({...cur, goalTitle:v.title.trim().slice(0,40), goalTarget:target, goalStart: cur.goalStart || Date.now(), goalsDone: cur.goalsDone || []}), "היעד נשמר");
+    if (ok) closeSheet();
+  }
+});
+
+function sheetRedeem(){
+  const fam = activeFamily();
+  sheetState = {member: fam.find(f=>f.kind==="kid")?.id || fam[0].id, rewardId: S.rewards[0]?.id};
+  drawRedeem(); scrim.hidden=false;
+}
+function drawRedeem(){
+  const st = sheetState, fam = activeFamily();
+  const p = pointsOf(st.member), r = S.rewards.find(x=>x.id===st.rewardId);
+  const can = r && p.balance >= r.cost;
+  sheet.innerHTML = `<h2>מימוש פרס</h2>
+   <label class="f">למי<select id="rdWho">${fam.map(f=>`<option value="${esc(f.id)}" ${f.id===st.member?"selected":""}>${esc(f.name)} · ${pointsOf(f.id).balance} נק׳</option>`).join("")}</select></label>
+   <label class="f">איזה פרס<select id="rdReward">${S.rewards.map(x=>`<option value="${esc(x.id)}" ${x.id===st.rewardId?"selected":""}>${esc(x.title)} · ${x.cost} נק׳</option>`).join("")}</select></label>
+   ${r && !can?`<div class="banner warn">חסרות ${r.cost-p.balance} נקודות.</div>`:""}
+   <div class="row"><button class="btn primary sp" data-action="rdSave" ${can?"":"disabled"}>מימוש</button><button class="btn ghost" data-action="close">ביטול</button></div>`;
+}
+
+/* ---------- אירועים ---------- */
+let pendingConfirm = null;
+document.addEventListener("click", async ev=>{
+  const tab = ev.target.closest("[data-tab]");
+  if (tab){ S.tab = tab.dataset.tab; render(); window.scrollTo(0,0); return; }
+  const b = ev.target.closest("[data-action]"); if (!b) return;
+  const a = b.dataset.action, id = b.dataset.id;
+  switch(a){
+    case "close": closeSheet(); break;
+    case "pickMe": sheetPickMe(); break;
+    case "adminOn": sheetForm("כניסה למצב מנהל", `<label class="f">קוד מנהל<input name="pin" id="admPin" type="password" inputmode="numeric" autocomplete="off" required></label>`, "adminOn"); break;
+    case "adminPin": sheetForm("קוד מנהל חדש", `<label class="f">קוד חדש (4 ספרות לפחות)<input name="pin" id="admNew" inputmode="numeric" minlength="4" autocomplete="off" required></label>`, "adminPin"); break;
+    case "adminOff": store.set("admin",""); S.isOwner=false; closeSheet(); render(); toast("יצאת ממצב מנהל"); break;
+    case "leaveFamily": {
+      if (pendingConfirm!=="leave"){ pendingConfirm="leave"; b.textContent="בטוח? לחצו שוב"; setTimeout(()=>{if(pendingConfirm==="leave"){pendingConfirm=null;}},3000); break; }
+      store.set("family",""); store.set("admin",""); location.reload(); break; }
+    case "setMe": S.me=id; store.set("meId",id); closeSheet(); render(); break;
+    case "lib": S.libFilter = /^\d$/.test(b.dataset.k)?+b.dataset.k:b.dataset.k; render(); break;
+    case "log": sheetLog(b.dataset.task); break;
+    case "logEx": sheetLog(null,{dog:b.dataset.dog, exId:b.dataset.ex}); break;
+    case "lgDog": sheetState.dog=id; sheetState.exId=null; sheetState.note=sheet.querySelector("#lgNote")?.value; drawLog(); break;
+    case "lgRate": sheetState.rating=+b.dataset.n; sheetState.note=sheet.querySelector("#lgNote")?.value; drawLog(); break;
+    case "lgSave": {
+      const st=sheetState; const note=(sheet.querySelector("#lgNote")?.value||"").trim().slice(0,300);
+      b.disabled=true;
+      const now=new Date();
+      const ok = await write(()=>S.db.collection("logs").add({exId:st.exId, dog:st.dog, member:st.member, rating:st.rating, note, taskId:st.taskId, date:dkey(now), ts:now.getTime(), pts:PTS}), `נשמר · +${PTS} נקודות ל${mName(st.member)}`);
+      if (ok) closeSheet(); else b.disabled=false;
+      break; }
+    case "newTask": sheetTask(); break;
+    case "tkDay": { const i=+b.dataset.i, d=sheetState.days; sheetState.days = d.includes(i)?d.filter(x=>x!==i):[...d,i]; drawTask(); break; }
+    case "tkMember": { const m=sheetState.members; sheetState.members = m.includes(id)?m.filter(x=>x!==id):[...m,id]; drawTask(); break; }
+    case "tkDog": { const d=sheetState.dogs; sheetState.dogs = d.includes(id)?d.filter(x=>x!==id):[...d,id]; drawTask(); break; }
+    case "tkEx": sheetState.exId=id; drawTask(); break;
+    case "tkPreset": sheetState.days = {all:[0,1,2,3,4,5,6], week:[0,1,2,3,4], wkend:[5,6]}[b.dataset.p]; drawTask(); break;
+    case "assignEx": sheetTask({dog:b.dataset.dog||null, exId:b.dataset.ex}); if(!b.dataset.dog){sheetState.dogs=EXM[b.dataset.ex]?.dogs||["simba"];drawTask();} break;
+    case "tkSave": {
+      const st=sheetState; b.disabled=true;
+      const ok = await write(async ()=>{ for (const m of st.members) for (const d of st.dogs) await S.db.collection("tasks").add({exId:st.exId, dog:d, member:m, days:st.days.slice().sort(), active:true, createdAt:Date.now()}); }, st.members.length*st.dogs.length>1?"המשימות שובצו":"המשימה שובצה");
+      if (ok) closeSheet(); else b.disabled=false;
+      break; }
+    case "toggleTask": { const t=S.tasks.find(x=>x.id===id); if(t) await write(()=>S.db.doc("tasks/"+id).update({active:t.active===false})); break; }
+    case "delTask": case "delMember": case "delReward": {
+      if (pendingConfirm!==a+id){ pendingConfirm=a+id; b.textContent="בטוח?"; setTimeout(()=>{if(pendingConfirm===a+id){pendingConfirm=null;render()}},3000); break; }
+      pendingConfirm=null;
+      if (a==="delTask") await write(()=>S.db.doc("tasks/"+id).delete(),"נמחק");
+      if (a==="delMember") await write(()=>S.db.doc("family/"+id).update({active:false}),"הוסר");
+      if (a==="delReward") await write(()=>S.db.doc("rewards/"+id).delete(),"נמחק");
+      break; }
+    case "addMember": sheetForm("בן משפחה חדש", `<label class="f">שם<input name="name" id="fmName" maxlength="30" required autocomplete="off"></label><label class="f">סוג<select name="kind" id="fmKind"><option value="kid">ילדה</option><option value="adult">מבוגר</option></select></label>`, "member"); break;
+    case "addReward": sheetForm("פרס חדש", `<label class="f">הפרס<input name="title" id="rwTitle" maxlength="40" required placeholder="למשל: 10 ש״ח, או חטיף לבחירה"></label><label class="f">כמה נקודות הוא עולה<input name="cost" id="rwCost" type="number" min="1" step="1" required inputmode="numeric" placeholder="100"></label>`, "reward"); break;
+    case "editTiers": { const g=goal(); const t=[0,1,2].map(i=>g.tiers[i]||{title:"",target:""});
+      sheetForm("יעדים משפחתיים", t.map((x,i)=>`<div class="row" style="align-items:flex-end;flex-wrap:nowrap"><span class="medal" style="font-size:26px">${MEDAL[i]}</span><label class="f sp">פרס<input name="t${i}" id="tr${i}" maxlength="40" value="${esc(x.title)}"></label><label class="f" style="width:96px">נקודות<input name="p${i}" id="tp${i}" type="number" min="1" step="1" inputmode="numeric" value="${x.target}"></label></div>`).join("")+`<span class="small muted">שורה ריקה לא תישמר. הספירה ממשיכה מהנקודה הנוכחית.</span>`, "tiers"); break; }
+    case "claimTier": { const i=+b.dataset.i, cur=S.settings||{}; await write(()=>S.db.doc("settings/main").set({...cur, familyTiers: goal().tiers, tiersClaimed:[...new Set([...(cur.tiersClaimed||[]), i])]}), "מעולה! תהנו 🎉"); break; }
+    case "goalDone": {
+      if (pendingConfirm!=="goal"){ pendingConfirm="goal"; b.textContent="לחצו שוב לאישור"; setTimeout(()=>{if(pendingConfirm==="goal"){pendingConfirm=null;render()}},3000); break; }
+      pendingConfirm=null; const g=goal(), cur=S.settings||{};
+      await write(()=>S.db.doc("settings/main").set({...cur, familyTiers:g.tiers, tiersClaimed:[], goalsDone:[...(cur.goalsDone||[]), {ts:Date.now(), total:g.total}], goalStart:Date.now()}), "סבב חדש התחיל!");
+      break; }
+    case "walk": sheetWalk(); break;
+    case "walkDay": S.walkDate=b.dataset.k; render(); window.scrollTo({top:0,behavior:"smooth"}); break;
+    case "jMode": S.jMode=b.dataset.m; if(S.jMode==="month" && !S.jMonth){const n=new Date(); S.jMonth=`${n.getFullYear()}-${pad(n.getMonth()+1)}`;} render(); break;
+    case "jMonth": { const [y,m]=(S.jMonth).split("-").map(Number); const d=new Date(y, m-1+(+b.dataset.n), 1); const n=new Date(); const k=`${d.getFullYear()}-${pad(d.getMonth()+1)}`; if(k<=`${n.getFullYear()}-${pad(n.getMonth()+1)}`){S.jMonth=k; render();} break; }
+    case "slotWho": if(!S.isOwner){toast("רק מבוגרים מעדכנים הורדות");break;} { const sl=b.dataset.slot; await setSlot(sl, n=>{ n.member = n.member===id ? null : id; }); break; }
+    case "slotDog": if(!S.isOwner){toast("רק מבוגרים מעדכנים הורדות");break;} { const sl=b.dataset.slot, dg=b.dataset.dog, k=b.dataset.k; await setSlot(sl, n=>{ n.dogs[dg]=n.dogs[dg]||{}; n.dogs[dg][k]=!n.dogs[dg][k]; }); break; }
+    case "walkShift": { const d=new Date((S.walkDate||today())+"T12:00:00"); d.setDate(d.getDate()+(+b.dataset.n)); const k=dkey(d); if(k<=today()){S.walkDate=k; render();} break; }
+    case "wkWho": sheetState.member=id; drawWalk(); break;
+    case "wkDog": { const d=sheetState.dogs; sheetState.dogs=d.includes(id)?d.filter(x=>x!==id):[...d,id]; sheetState.pee=sheetState.pee.filter(x=>sheetState.dogs.includes(x)); sheetState.poop=sheetState.poop.filter(x=>sheetState.dogs.includes(x)); drawWalk(); break; }
+    case "wkMin": sheetState.min=+b.dataset.m; drawWalk(); break;
+    case "wkTog": { const k=b.dataset.arr, a2=sheetState[k]; sheetState[k]=a2.includes(id)?a2.filter(x=>x!==id):[...a2,id]; drawWalk(); break; }
+    case "wkSave": {
+      const st=sheetState; b.disabled=true;
+      const [hh,mm]=(st.time||"").split(":").map(Number); const t=new Date(); if(!isNaN(hh)) t.setHours(hh,mm||0,0,0);
+      const ok = await write(()=>S.db.collection("walks").add({member:st.member, dogs:st.dogs, min:st.min, pee:st.pee, poop:st.poop, date:dkey(t), ts:t.getTime()}), "ההורדה נרשמה 🐾");
+      if (ok) closeSheet(); else b.disabled=false;
+      break; }
+    case "delWalk": {
+      if (pendingConfirm!=="w"+id){ pendingConfirm="w"+id; b.textContent="בטוח?"; setTimeout(()=>{if(pendingConfirm==="w"+id){pendingConfirm=null;render()}},3000); break; }
+      pendingConfirm=null; await write(()=>S.db.doc("walks/"+id).delete(),"נמחק"); break; }
+    case "redeem": sheetRedeem(); break;
+    case "rdSave": {
+      const st=sheetState, r=S.rewards.find(x=>x.id===st.rewardId); if(!r) break; b.disabled=true;
+      const ok = await write(()=>S.db.collection("redemptions").add({member:st.member, rewardId:r.id, title:r.title, cost:r.cost, ts:Date.now()}), `מומש: ${r.title} ל${mName(st.member)}`);
+      if (ok) closeSheet(); else b.disabled=false;
+      break; }
+    case "stage": {
+      const dog=b.dataset.dog, dir=+b.dataset.dir, cur=dogStage(dog), next=Math.min(3,Math.max(1,cur+dir));
+      const key="stage"+dog+dir;
+      if (pendingConfirm!==key){ pendingConfirm=key; b.textContent= dir>0?`לחצו שוב: ${dogName(dog)} לשלב ${next}`:`לחצו שוב לאישור`; setTimeout(()=>{if(pendingConfirm===key){pendingConfirm=null;render()}},3500); break; }
+      pendingConfirm=null;
+      await write(()=>S.db.doc("dogs/"+dog).set({...(S.dogs[dog]||{}), stage:next}), `${dogName(dog)} בשלב ${next}: ${STAGES[next]}`);
+      break; }
+    case "photo": {
+      const dog=b.dataset.dog; const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
+      inp.onchange = async ()=>{ const f=inp.files[0]; if(!f) return; toast("מעלה תמונה…");
+        try{ const data = await shrink(f); const pid = dog+"-"+Date.now();
+          await write(async ()=>{ await S.db.doc("photos/"+pid).set({data}); await S.db.doc("dogs/"+dog).set({...(S.dogs[dog]||{stage:1}), photo:pid}); }, "התמונה עודכנה");
+        }catch(e){ toast("התמונה לא עלתה. נסו שוב."); } };
+      inp.click(); break; }
+  }
+});
+async function shrink(file){
+  const url = URL.createObjectURL(file);
+  try{
+    const img = await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+    const s = Math.min(1, 300/Math.max(img.width,img.height));
+    const c = document.createElement("canvas"); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    return c.toDataURL("image/jpeg",.8);
+  } finally { URL.revokeObjectURL(url); }
+}
+
+document.addEventListener("change", e=>{ if(e.target.id==="walkDate" && e.target.value){ S.walkDate=e.target.value; render(); } });
+document.addEventListener("toggle", e=>{ const k=e.target.dataset?.key; if(!k) return; if(e.target.open) S.open.add(k); else S.open.delete(k); }, true);
+
+/* ---------- חיבור לנתונים: Firebase ---------- */
+let FAMILY = (store.get("family")||"");
+const normCode = c => (c||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9֐-׿_-]/g,"");
+const gate = document.getElementById("gate"), gateBox = document.getElementById("gateBox");
+function showGate(html){ gateBox.innerHTML = html; gate.hidden = false; gateBox.querySelector("input,button")?.focus(); }
+
+function makeDb(fs, code){
+  const base = "families/" + code + "/";
+  return { collection: n => fs.collection(base + n), doc: p => fs.doc(base + p) };
+}
+function askCode(err){
+  showGate(`<div class="logo">🐾</div><h2>סימבה ונלה</h2><p class="muted" style="margin:0">הקלידו את הקוד המשפחתי. מקבלים אותו מאבא.</p>
+    <form id="codeForm" class="stack"><input id="famCode" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="הקוד המשפחתי" required><div class="err">${err||""}</div><button class="btn primary block" type="submit">כניסה</button></form>`);
+  document.getElementById("codeForm").onsubmit = e => { e.preventDefault(); const c = normCode(document.getElementById("famCode").value); if (c.length<6){ askCode("הקוד קצר מדי."); return; } store.set("family", c); FAMILY=c; gate.hidden=true; connect(); };
+}
+async function maybeSetup(){
+  /* משפחה חדשה: מציעים לייבא את הנתונים מהגרסה הקודמת ולקבוע קוד מנהל */
+  if (S.settings || S.family.length) return;
+  showGate(`<div class="logo">🎉</div><h2>משפחה חדשה</h2><p class="muted" style="margin:0">זו הפעם הראשונה עם הקוד הזה. קבעו קוד מנהל (רק לכם), ונעביר את כל מה שכבר הוגדר: בני המשפחה, הפרסים, היעדים והתמונות.</p>
+    <form id="setupForm" class="stack"><input id="newPin" inputmode="numeric" minlength="4" placeholder="קוד מנהל, 4 ספרות לפחות" required autocomplete="off"><div class="err" id="setupErr"></div><button class="btn primary block" type="submit">התחלה</button></form>
+    <button class="btn ghost small" id="wrongCode">זה לא הקוד הנכון</button>`);
+  document.getElementById("wrongCode").onclick = ()=>{ store.set("family",""); location.reload(); };
+  document.getElementById("setupForm").onsubmit = async e => {
+    e.preventDefault(); const pin = document.getElementById("newPin").value.trim(); if (pin.length<4) return;
+    const btn = e.target.querySelector("button"); btn.disabled = true; btn.textContent = "מעביר נתונים…";
+    try {
+      const seed = window.SEED || {};
+      const batch = firebase.firestore().batch();
+      for (const [c, docs] of Object.entries(seed)) for (const [id, data] of Object.entries(docs)) {
+        const d = c==="settings" && id==="main" ? {...data, adminPin:pin} : data;
+        batch.set(S.db.doc(c+"/"+id), d);
+      }
+      if (!seed.settings) batch.set(firebase.firestore().doc("families/"+FAMILY+"/settings/main"), {adminPin:pin});
+      await batch.commit();
+      store.set("admin", FAMILY); S.isOwner = true; gate.hidden = true; toast("הכל מוכן! 🐾"); render();
+    } catch(err){ document.getElementById("setupErr").textContent = "השמירה נכשלה. בדקו את האינטרנט ונסו שוב."; btn.disabled=false; btn.textContent="התחלה"; }
+  };
+}
+
+let fbReady = null;
+function initFirebase(){
+  if (fbReady) return fbReady;
+  fbReady = (async ()=>{
+    if (!window.firebase || !window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey) throw new Error("config");
+    firebase.initializeApp(window.FIREBASE_CONFIG);
+    const fs = firebase.firestore();
+    try { await fs.enablePersistence({synchronizeTabs:true}); } catch(e){}
+    await firebase.auth().signInAnonymously();
+    return fs;
+  })();
+  return fbReady;
+}
+
+const unsubs = [];
+async function connect(){
+  let fs;
+  try { fs = await initFirebase(); }
+  catch(e){ S.noDb = true; render(); if (String(e.message)==="config") showGate(`<div class="logo">⚙️</div><h2>חסרות הגדרות</h2><p class="muted">הקובץ config.js עוד לא מולא.</p>`); return; }
+  const db = makeDb(fs, FAMILY);
+  S.db = db;
+  S.isOwner = store.get("admin")===FAMILY;
+  const timer = setTimeout(()=>{S.slow=true;render()},10000);
+  let pending = 9;
+  const firstDone = ()=>{ if(--pending===0){ S.loaded=true; clearTimeout(timer); render(); maybeSetup(); } };
+  const onErr = (e)=>{ if (e && e.code==="permission-denied"){ store.set("family",""); askCode("אין גישה עם הקוד הזה."); return; } S.slow=true; render(); };
+  let rq=0; const rerender=()=>{ if(rq) return; rq=requestAnimationFrame(()=>{rq=0; render();}); };
+  const coll = (name, key) => { let first=true; unsubs.push(db.collection(name).onSnapshot({includeMetadataChanges:true}, snap=>{
+      S[key] = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      if (first && !snap.metadata.fromCache){ first=false; firstDone(); }
+      rerender();
+    }, onErr)); };
+  coll("family","family"); coll("tasks","tasks"); coll("logs","logs"); coll("rewards","rewards");
+  coll("redemptions","redemptions"); coll("walks","walks");
+  let firstDogs=true, firstPh=true, firstSet=true;
+  unsubs.push(db.collection("dogs").onSnapshot({includeMetadataChanges:true}, snap=>{ const o={}; snap.docs.forEach(d=>o[d.id]=d.data()); S.dogs=o; if(firstDogs&&!snap.metadata.fromCache){firstDogs=false;firstDone();} rerender(); }, onErr));
+  unsubs.push(db.collection("photos").onSnapshot({includeMetadataChanges:true}, snap=>{ const o={}; snap.docs.forEach(d=>o[d.id]=d.data()); S.photos=o; if(firstPh&&!snap.metadata.fromCache){firstPh=false;firstDone();} rerender(); }, onErr));
+  unsubs.push(db.doc("settings/main").onSnapshot({includeMetadataChanges:true}, d=>{ S.settings = d.exists ? d.data() : null; if(S.isOwner && S.settings && !S.settings.adminPin){} if(firstSet&&!d.metadata.fromCache){firstSet=false;firstDone();} rerender(); }, onErr));
+}
+
+render();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+if (!FAMILY) askCode(); else connect();
+</script>
+</body>
+</html>
