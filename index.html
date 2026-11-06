@@ -683,7 +683,7 @@ function vWalks(){
   SLOTS.forEach(([slot, ic, label])=>{
     const w = slotDoc(sel, slot), who = w?.member, kid = member(who)?.kind==="kid";
     const canWalk = canEditSlot(w);
-    h.push(`<div class="slot ${slotDone(w)?"done":""}"><div class="row"><h3 class="sp">${ic} ${label}</h3>${slotDone(w)?`<span class="pill good">✔ ${esc(mName(who))}</span>${canWalk?"":` <span class="pill" title="רק מבוגרים יכולים לשנות">🔒</span>`}`:`<span class="pill">עוד לא</span>`}</div>
+    h.push(`<div class="slot ${slotDone(w)?"done":""}"><div class="row"><h3 class="sp">${ic} ${label}</h3>${slotDone(w)?`<span class="pill good">✔ ${esc(mName(who))}</span>${canWalk?"":` <span class="pill" title="רק מבוגרים יכולים לשנות">🔒</span>`}${S.isOwner && w?`<button type="button" class="iconbtn" data-action="slotClear" data-slot="${slot}" style="color:var(--warn)">🗑 מחיקה</button>`:""}`:`<span class="pill">עוד לא</span>`}</div>
       <div class="stack" style="gap:6px"><span class="eyebrow">מי הוריד?</span><div class="chips">${fam.map(f=>`<button type="button" class="pchip" data-action="slotWho" ${canWalk?"":"disabled"} data-slot="${slot}" data-id="${esc(f.id)}" aria-pressed="${who===f.id}" style="--pc:${PCOL[pIdx(f.id)]};--ps:${PSOFT[pIdx(f.id)]}"><span class="ini" style="background:${PCOL[pIdx(f.id)]}">${esc(f.name[0])}</span>${esc(f.name)}</button>`).join("")}</div></div>
       ${DOGS.map(d=>{const dd=w?.dogs?.[d.id]||{};return `<div class="dogline ${d.id}">${avatar(d.id,"sm")}<b class="sp">${d.name}</b><button type="button" class="pchip" data-action="slotDog" ${canWalk?"":"disabled"} data-slot="${slot}" data-dog="${d.id}" data-k="pee" aria-pressed="${!!dd.pee}">💧 פיפי</button><button type="button" class="pchip" data-action="slotDog" ${canWalk?"":"disabled"} data-slot="${slot}" data-dog="${d.id}" data-k="poop" aria-pressed="${!!dd.poop}">💩 קקי</button></div>`}).join("")}
     </div>`);
@@ -964,6 +964,13 @@ document.addEventListener("click", async ev=>{
     case "jMode": S.jMode=b.dataset.m; if(S.jMode==="month" && !S.jMonth){const n=new Date(); S.jMonth=`${n.getFullYear()}-${pad(n.getMonth()+1)}`;} render(); break;
     case "jMonth": { const [y,m]=(S.jMonth).split("-").map(Number); const d=new Date(y, m-1+(+b.dataset.n), 1); const n=new Date(); const k=`${d.getFullYear()}-${pad(d.getMonth()+1)}`; if(k<=`${n.getFullYear()}-${pad(n.getMonth()+1)}`){S.jMonth=k; render();} break; }
     case "slotWho": { const sl=b.dataset.slot; await setSlot(sl, n=>{ n.member = n.member===id ? null : id; }); break; }
+    case "slotClear": {
+      const sl=b.dataset.slot, key="clr"+sl;
+      if (!S.isOwner) break;
+      if (pendingConfirm!==key){ pendingConfirm=key; b.textContent="לחצו שוב למחיקה"; setTimeout(()=>{if(pendingConfirm===key){pendingConfirm=null;render()}},3000); break; }
+      pendingConfirm=null;
+      await write(()=>S.db.doc("walks/"+(S.walkDate||today())+"_"+sl).delete(), "ההורדה נמחקה");
+      break; }
     case "slotDog": { const sl=b.dataset.slot, dg=b.dataset.dog, k=b.dataset.k; await setSlot(sl, n=>{ n.dogs[dg]=n.dogs[dg]||{}; n.dogs[dg][k]=!n.dogs[dg][k]; }); break; }
     case "walkShift": { const d=new Date((S.walkDate||today())+"T12:00:00"); d.setDate(d.getDate()+(+b.dataset.n)); const k=dkey(d); if(k<=today()){S.walkDate=k; render();} break; }
     case "wkWho": sheetState.member=id; drawWalk(); break;
